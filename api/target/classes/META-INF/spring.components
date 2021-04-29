@@ -1,0 +1,10 @@
+ca.bc.gov.educ.api.pen.myed.PenMyEdAPIApplication=org.springframework.stereotype.Component
+ca.bc.gov.educ.api.pen.myed.controller.v1.PenMyEdController=org.springframework.stereotype.Component
+ca.bc.gov.educ.api.pen.myed.exception.RestExceptionHandler=org.springframework.stereotype.Component
+ca.bc.gov.educ.api.pen.myed.mappers.v1.PenRegBatchMapperImpl=javax.annotation.processing.Generated
+ca.bc.gov.educ.api.pen.myed.mappers.v1.PenRegBatchMapperImpl_=javax.annotation.processing.Generated
+ca.bc.gov.educ.api.pen.myed.properties.ApplicationProperties=org.springframework.stereotype.Component
+ca.bc.gov.educ.api.pen.myed.rest.RestUtils=org.springframework.stereotype.Component
+ca.bc.gov.educ.api.pen.myed.rest.RestWebClient=org.springframework.stereotype.Component
+ca.bc.gov.educ.api.pen.myed.service.v1.PenMyEdService=org.springframework.stereotype.Component
+ca.bc.gov.educ.api.pen.myed.validator.PenRequestBatchSubmissionValidator=org.springframework.stereotype.Component
