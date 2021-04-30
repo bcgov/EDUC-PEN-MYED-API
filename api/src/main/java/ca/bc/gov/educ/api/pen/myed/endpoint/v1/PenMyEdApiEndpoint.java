@@ -35,7 +35,7 @@ public interface PenMyEdApiEndpoint {
   @Tag(name = "Endpoint to create Pen Request Batch Submission.",
     description = "This endpoint will allow MyEd to submit a batch request via api call. If the api call was success it will return a guid {batchSubmissionID} for further tracking.")
   @Schema(name = "PenRequestBatchSubmission", implementation = PenRequestBatchSubmission.class)
-  ResponseEntity<String> createNewBatchSubmission(@Validated @RequestBody PenRequestBatchSubmission penRequestBatchSubmission);
+  Mono<ResponseEntity<String>> createNewBatchSubmission(@Validated @RequestBody PenRequestBatchSubmission penRequestBatchSubmission);
 
   @GetMapping("/pen-request-batch-submission/{batchSubmissionID}/result")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_REQUEST_BATCH')")
@@ -66,5 +66,5 @@ public interface PenMyEdApiEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "300", description = "Multiple Choices")})
   @Tag(name = "Endpoint to request a student PEN.", description = "Endpoint to request a student PEN.")
   @Schema(name = "Request", implementation = Request.class)
-  ResponseEntity<PenRequestResult> penRequest(@Validated @RequestBody Request request);
+  Mono<ResponseEntity<PenRequestResult>> penRequest(@Validated @RequestBody Request request);
 }

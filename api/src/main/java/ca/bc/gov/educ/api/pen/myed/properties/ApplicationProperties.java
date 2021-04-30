@@ -44,4 +44,10 @@ public class ApplicationProperties {
   @Value("${url.api.pen.services}")
   private String penServicesApiURL;
 
+  @Value("${url.api.pen.match}")
+  private String penMatchApiURL;
+
+  @Value("${url.api.student}")
+  private String studentApiURL;
+
 }

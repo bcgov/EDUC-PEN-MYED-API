@@ -11,5 +11,13 @@ import javax.validation.constraints.Size;
 public class Request extends PenRequestBatchSubmissionStudent {
   @Size(max = 8, min = 8)
   @NotNull
-  Integer mincode;
+  String mincode;
+
+  @Size(max = 32)
+  @NotNull
+  String createUser;
+
+  @Size(max = 32)
+  @NotNull
+  String updateUser;
 }

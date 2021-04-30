@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.api.pen.myed.struct.v1;
 
-import ca.bc.gov.educ.api.pen.myed.annotation.DateFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
