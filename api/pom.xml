@@ -185,11 +185,6 @@
           <version>0.8.4</version>
         </plugin>
         <plugin>
-          <groupId>org.hibernate.orm.tooling</groupId>
-          <artifactId>hibernate-enhance-maven-plugin</artifactId>
-          <version>${hibernate.version}</version>
-        </plugin>
-        <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
         </plugin>
@@ -271,22 +266,6 @@
                 <goals>
                   <goal>integration-test</goal>
                   <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.hibernate.orm.tooling</groupId>
-            <artifactId>hibernate-enhance-maven-plugin</artifactId>
-            <version>${hibernate.version}</version>
-            <executions>
-              <execution>
-                <configuration>
-                  <failOnError>true</failOnError>
-                  <enableLazyInitialization>true</enableLazyInitialization>
-                </configuration>
-                <goals>
-                  <goal>enhance</goal>
                 </goals>
               </execution>
             </executions>

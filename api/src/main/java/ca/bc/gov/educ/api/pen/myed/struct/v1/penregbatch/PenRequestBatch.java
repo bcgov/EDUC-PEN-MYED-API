@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * The type Pen request batch.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -54,11 +57,11 @@ public class PenRequestBatch {
    */
   String sourceApplication;
   /**
-   * The Pen request batch source code.
+   * The Ministry prb source code.
    */
   String ministryPRBSourceCode;
   /**
-   * The Min code.
+   * The Mincode.
    */
   String mincode;
   /**
@@ -87,7 +90,7 @@ public class PenRequestBatch {
   String studentCount;
 
   /**
-   * The new pen count.
+   * The New pen count.
    */
   String newPenCount;
   /**
@@ -119,7 +122,7 @@ public class PenRequestBatch {
    */
   String sisProductID;
   /**
-   * The PEN Request Batch Process Type Code.
+   * The Pen request batch process type code.
    */
   String penRequestBatchProcessTypeCode;
   /**
@@ -138,10 +141,13 @@ public class PenRequestBatch {
   String updateUser;
 
   /**
-   * The count of searched student records
+   * The Searched count.
    */
   Long searchedCount;
 
+  /**
+   * The Students.
+   */
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<PenRequestBatchStudent> students;

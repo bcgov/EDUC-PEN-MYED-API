@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Class holds all application properties
- *
- * @author Marco Villeneuve
+ * The type Application properties.
  */
 @Component
 @Getter
@@ -35,13 +33,34 @@ public class ApplicationProperties {
   @Value("${url.token}")
   private String tokenURL;
 
+  /**
+   * The Pen reg batch api url.
+   */
   @Value("${url.api.pen.reg.batch}")
   private String penRegBatchApiUrl;
 
+  /**
+   * The School api url.
+   */
   @Value("${url.api.school}")
   private String schoolApiUrl;
 
+  /**
+   * The Pen services api url.
+   */
   @Value("${url.api.pen.services}")
   private String penServicesApiURL;
+
+  /**
+   * The Pen match api url.
+   */
+  @Value("${url.api.pen.match}")
+  private String penMatchApiURL;
+
+  /**
+   * The Student api url.
+   */
+  @Value("${url.api.student}")
+  private String studentApiURL;
 
 }

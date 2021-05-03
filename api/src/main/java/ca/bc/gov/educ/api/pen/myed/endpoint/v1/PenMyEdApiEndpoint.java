@@ -23,11 +23,20 @@ import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
+/**
+ * The interface Pen my ed api endpoint.
+ */
 @RequestMapping("/api/v1/pen-myed")
 @OpenAPIDefinition(info = @Info(title = "API for Pen MyEd Integration.", description = "This API exposes different endpoints for MyEd.", version = "1"), security =
   {@SecurityRequirement(name =
     "OAUTH2", scopes = {"MYED_READ_PEN_REQUEST_BATCH", "MYED_WRITE_PEN_REQUEST_BATCH", "MYED_READ_PEN_COORDINATOR","MYED_VALIDATE_PEN"})})
 public interface PenMyEdApiEndpoint {
+  /**
+   * Create new batch submission mono.
+   *
+   * @param penRequestBatchSubmission the pen request batch submission
+   * @return the mono
+   */
   @PostMapping("/pen-request-batch-submission")
   @PreAuthorize("hasAuthority('SCOPE_MYED_WRITE_PEN_REQUEST_BATCH')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST") , @ApiResponse(responseCode = "409", description = "CONFLICT")})
@@ -35,8 +44,14 @@ public interface PenMyEdApiEndpoint {
   @Tag(name = "Endpoint to create Pen Request Batch Submission.",
     description = "This endpoint will allow MyEd to submit a batch request via api call. If the api call was success it will return a guid {batchSubmissionID} for further tracking.")
   @Schema(name = "PenRequestBatchSubmission", implementation = PenRequestBatchSubmission.class)
-  ResponseEntity<String> createNewBatchSubmission(@Validated @RequestBody PenRequestBatchSubmission penRequestBatchSubmission);
+  Mono<ResponseEntity<String>> createNewBatchSubmission(@Validated @RequestBody PenRequestBatchSubmission penRequestBatchSubmission);
 
+  /**
+   * Batch submission result mono.
+   *
+   * @param batchSubmissionID the batch submission id
+   * @return the mono
+   */
   @GetMapping("/pen-request-batch-submission/{batchSubmissionID}/result")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_REQUEST_BATCH')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK" , content = @Content(schema = @Schema(name = "PenRequestBatchSubmissionResult", implementation = PenRequestBatchSubmissionResult.class))), @ApiResponse(responseCode = "202", description = "ACCEPTED"), @ApiResponse(responseCode = "404", description =
@@ -46,6 +61,12 @@ public interface PenMyEdApiEndpoint {
   @Schema(name = "PenRequestBatchSubmissionResult", implementation = PenRequestBatchSubmissionResult.class)
   Mono<ResponseEntity<PenRequestBatchSubmissionResult>> batchSubmissionResult(@PathVariable UUID batchSubmissionID);
 
+  /**
+   * Gets pen coordinator by min code.
+   *
+   * @param mincode the mincode
+   * @return the pen coordinator by min code
+   */
   @GetMapping("/{mincode}/pen-coordinator")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_COORDINATOR')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(name = "PenCoordinator", implementation = PenCoordinator.class))),
@@ -54,6 +75,12 @@ public interface PenMyEdApiEndpoint {
 
   Mono<ResponseEntity<PenCoordinator>> getPenCoordinatorByMinCode(@PathVariable("mincode")  String mincode);
 
+  /**
+   * Validate pen response entity.
+   *
+   * @param request the request
+   * @return the response entity
+   */
   @PostMapping("/validate-pen")
   @PreAuthorize("hasAuthority('SCOPE_MYED_VALIDATE_PEN')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
@@ -61,10 +88,16 @@ public interface PenMyEdApiEndpoint {
   @Schema(name = "PenValidation", implementation = Request.class)
   ResponseEntity<Boolean> validatePEN(@Validated @RequestBody Request request);
 
+  /**
+   * Pen request mono.
+   *
+   * @param request the request
+   * @return the mono
+   */
   @PostMapping("/pen-request")
   @PreAuthorize("hasAuthority('SCOPE_MYED_PEN_REQUEST')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "300", description = "Multiple Choices")})
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"),@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "300", description = "Multiple Choices")})
   @Tag(name = "Endpoint to request a student PEN.", description = "Endpoint to request a student PEN.")
   @Schema(name = "Request", implementation = Request.class)
-  ResponseEntity<PenRequestResult> penRequest(@Validated @RequestBody Request request);
+  Mono<ResponseEntity<PenRequestResult>> penRequest(@Validated @RequestBody Request request);
 }

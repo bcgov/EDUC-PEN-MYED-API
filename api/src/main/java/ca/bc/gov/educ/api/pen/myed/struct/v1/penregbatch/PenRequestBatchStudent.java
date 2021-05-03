@@ -9,8 +9,6 @@ import java.util.UUID;
 
 /**
  * The type Pen request batch student.
- *
- * @author OM
  */
 @Builder
 @Data
@@ -98,12 +96,12 @@ public class PenRequestBatchStudent {
   String updateUser;
 
   /**
-   * The Pen request repeat sequence number.
+   * The Repeat request sequence number.
    */
   Integer repeatRequestSequenceNumber;
 
   /**
-   * The Pen request original repeat ID.
+   * The Repeat request original id.
    */
   UUID repeatRequestOriginalID;
 
@@ -128,17 +126,17 @@ public class PenRequestBatchStudent {
   Integer recordNumber;
 
   /**
-   * The best match pen.
+   * The Best match pen.
    */
   String bestMatchPEN;
 
   /**
-   * The Min code from PenRequestBatch
+   * The Mincode.
    */
   String mincode;
 
   /**
-   * The Submission number from PenRequestBatch
+   * The Submission number.
    */
   String submissionNumber;
 }

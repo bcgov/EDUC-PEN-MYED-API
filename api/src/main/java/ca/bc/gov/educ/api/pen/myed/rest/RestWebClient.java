@@ -26,6 +26,9 @@ import java.time.Duration;
 @Configuration
 @Profile("!test")
 public class RestWebClient {
+  /**
+   * The Client.
+   */
   private final HttpClient client;
   /**
    * The Props.
@@ -64,7 +67,7 @@ public class RestWebClient {
       new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(clientRegistryRepo, clientService);
     val oauthFilter = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
     oauthFilter.setDefaultClientRegistrationId(this.props.getClientID());
-    final DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
+    val factory = new DefaultUriBuilderFactory();
     factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
     final ClientHttpConnector connector = new ReactorClientHttpConnector(client);
     return WebClient.builder()

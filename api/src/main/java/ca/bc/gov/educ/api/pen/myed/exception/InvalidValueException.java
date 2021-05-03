@@ -1,25 +1,37 @@
 package ca.bc.gov.educ.api.pen.myed.exception;
 
+import lombok.val;
+
 import java.util.Map;
 
 /**
- * InvalidValueException to provide error details when invalid value of a
- * parameter is passed to endpoint
- *
- *
+ * The type Invalid value exception.
  */
-
 public class InvalidValueException extends RuntimeException {
 
-    private static final long serialVersionUID = 8926815015510650437L;
+  /**
+   * The constant serialVersionUID.
+   */
+  private static final long serialVersionUID = 8926815015510650437L;
 
-    public InvalidValueException(String... paramsMap) {
+  /**
+   * Instantiates a new Invalid value exception.
+   *
+   * @param paramsMap the params map
+   */
+  public InvalidValueException(String... paramsMap) {
         super(InvalidValueException.generateMessage(
             ExceptionUtils.toMap(String.class, String.class, (Object[]) paramsMap))) ;
     }
 
-    private static String generateMessage(Map<String, String> values) {
-        String message = "Invalid request parameters provided: ";
+  /**
+   * Generate message string.
+   *
+   * @param values the values
+   * @return the string
+   */
+  private static String generateMessage(Map<String, String> values) {
+        val message = "Invalid request parameters provided: ";
         return message + values;
     }
 }

@@ -11,12 +11,24 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * The interface Pen reg batch mapper.
+ */
 @Mapper(uses = {UUIDMapper.class, LocalDateTimeMapper.class})
 @DecoratedWith(PenRegBatchDecorator.class)
 public interface PenRegBatchMapper {
+  /**
+   * The constant mapper.
+   */
   PenRegBatchMapper mapper = Mappers.getMapper(PenRegBatchMapper.class);
 
 
+  /**
+   * To pen request batch pen request batch.
+   *
+   * @param penRequestBatchSubmission the pen request batch submission
+   * @return the pen request batch
+   */
   @Mapping(target = "sourceApplication", constant = "MyED")
   @Mapping(target = "sisVendorName", source = "vendorName")
   @Mapping(target = "sisProductName", source = "productName")
@@ -46,6 +58,12 @@ public interface PenRegBatchMapper {
   @Mapping(target = "newPenCount", ignore = true)
   PenRequestBatch toPenRequestBatch(PenRequestBatchSubmission penRequestBatchSubmission);
 
+  /**
+   * To pen request batch student pen request batch student.
+   *
+   * @param penRequestBatchSubmissionStudent the pen request batch submission student
+   * @return the pen request batch student
+   */
   @Mapping(target = "usualMiddleNames", source = "usualMiddleName")
   @Mapping(target = "usualLastName", source = "usualSurname")
   @Mapping(target = "usualFirstName", source = "usualGivenName")
