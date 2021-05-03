@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -55,18 +56,12 @@ public class PenMyEdService {
     return this.restUtils.findBatchSubmissionResult(batchSubmissionID.toString());
   }
 
-  /**
-   * Gets pen coordinator by min code.
-   *
-   * @param mincode the mincode
-   * @return the pen coordinator by min code
-   */
-  public Mono<ResponseEntity<PenCoordinator>> getPenCoordinatorByMinCode(final String mincode) {
-    return this.restUtils.getPenCoordinator(mincode);
-  }
-
 
   public Mono<ResponseEntity<PenRequestResult>> postPenRequestToBatchAPI(final Request request) {
     return this.restUtils.postPenRequestToBatchAPI(request);
+  }
+
+  public Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators() {
+    return this.restUtils.getPenCoordinators();
   }
 }

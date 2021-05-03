@@ -2,8 +2,8 @@ package ca.bc.gov.educ.api.pen.myed.endpoint.v1;
 
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmission;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -62,31 +63,15 @@ public interface PenMyEdApiEndpoint {
   Mono<ResponseEntity<PenRequestBatchSubmissionResult>> batchSubmissionResult(@PathVariable UUID batchSubmissionID);
 
   /**
-   * Gets pen coordinator by min code.
    *
-   * @param mincode the mincode
-   * @return the pen coordinator by min code
    */
-  @GetMapping("/{mincode}/pen-coordinator")
+  @GetMapping("/pen-coordinators")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_COORDINATOR')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(name = "PenCoordinator", implementation = PenCoordinator.class))),
     @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  @Tag(name = "Endpoint to get Pen Coordinator by Mincode.", description = "Endpoint to get Pen Coordinator by Mincode.")
+  @Tag(name = "Endpoint to get all Pen Coordinators.", description = "Endpoint to get all Pen Coordinators.")
+  Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators();
 
-  Mono<ResponseEntity<PenCoordinator>> getPenCoordinatorByMinCode(@PathVariable("mincode")  String mincode);
-
-  /**
-   * Validate pen response entity.
-   *
-   * @param request the request
-   * @return the response entity
-   */
-  @PostMapping("/validate-pen")
-  @PreAuthorize("hasAuthority('SCOPE_MYED_VALIDATE_PEN')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
-  @Tag(name = "Endpoint to validate student data.", description = "Endpoint to validate student data.")
-  @Schema(name = "PenValidation", implementation = Request.class)
-  ResponseEntity<Boolean> validatePEN(@Validated @RequestBody Request request);
 
   /**
    * Pen request mono.

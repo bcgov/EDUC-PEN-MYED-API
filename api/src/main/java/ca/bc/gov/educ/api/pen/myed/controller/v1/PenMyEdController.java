@@ -14,12 +14,12 @@ import ca.bc.gov.educ.api.pen.myed.validator.PenMyEdPayloadValidator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -70,13 +70,8 @@ public class PenMyEdController implements PenMyEdApiEndpoint {
   }
 
   @Override
-  public Mono<ResponseEntity<PenCoordinator>> getPenCoordinatorByMinCode(final String mincode) {
-    return this.penMyEdService.getPenCoordinatorByMinCode(mincode);
-  }
-
-  @Override
-  public ResponseEntity<Boolean> validatePEN(final Request request) {
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // TODO
+  public Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators() {
+    return this.penMyEdService.getPenCoordinators();
   }
 
   @Override

@@ -14,6 +14,7 @@ import lombok.val;
 import org.jboss.threads.EnhancedQueueExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -91,9 +92,13 @@ public class RestUtils {
   @PostConstruct
   public void init() {
     if (this.isBackgroundInitializationEnabled != null && this.isBackgroundInitializationEnabled) {
-      this.bgTask.execute(this::populateSchoolMap);
+      this.bgTask.execute(() -> {
+        this.populateSchoolMap();
+        this.getPenCoordinators();
+      });
     } else {
       this.populateSchoolMap();
+      this.getPenCoordinators();
     }
   }
 
@@ -182,27 +187,6 @@ public class RestUtils {
   }
 
 
-  /**
-   * Gets pen coordinator.
-   *
-   * @param mincode the mincode
-   * @return the pen coordinator
-   */
-  public Mono<ResponseEntity<PenCoordinator>> getPenCoordinator(final String mincode) {
-    log.info("making api call to get pen coordinator data for :: {}", mincode);
-    return this.webClient.get()
-      .uri(this.props.getSchoolApiUrl(), uri -> uri.path("/{mincode}/pen-coordinator").build(mincode))
-      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .exchangeToMono(response -> {
-        if (response.statusCode().equals(HttpStatus.OK)) {
-          log.info("API call to get Pen coordinator success :: {}, for mincode :: {}", response.rawStatusCode(), mincode);
-          return response.toEntity(PenCoordinator.class);
-        } else {
-          log.info("API call to get Pen coordinator failed :: {}, for mincode :: {}", response.rawStatusCode(), mincode);
-          return Mono.just(ResponseEntity.status(response.statusCode()).build());
-        }
-      });
-  }
 
 
   public Mono<ResponseEntity<PenRequestResult>> postPenRequestToBatchAPI(final Request request) {
@@ -214,11 +198,28 @@ public class RestUtils {
         if (response.statusCode().equals(HttpStatus.OK) || response.statusCode().equals(HttpStatus.CREATED)) {
           log.info("API call to postPenRequestToBatchAPI success :: {}, for surname :: {}", response.rawStatusCode(), request.getLegalSurname());
           return response.toEntity(PenRequestResult.class);
-        }else if(response.statusCode().equals(HttpStatus.MULTIPLE_CHOICES)){
+        } else if (response.statusCode().equals(HttpStatus.MULTIPLE_CHOICES)) {
           log.info("API call to postPenRequestToBatchAPI success :: {}, for surname :: {}", response.rawStatusCode(), request.getLegalSurname());
           return Mono.just(ResponseEntity.status(response.statusCode()).build());
         } else {
           log.error("API call to postPenRequestToBatchAPI failure :: {}, for surname :: {}", response.rawStatusCode(), request.getLegalSurname());
+          return Mono.just(ResponseEntity.status(response.statusCode()).build());
+        }
+      });
+  }
+
+  public Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators() {
+    log.info("making api call to get pen coordinators data ");
+    return this.webClient.get()
+      .uri(this.props.getSchoolApiUrl() + "/pen-coordinator")
+      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+      .exchangeToMono(response -> {
+        if (response.statusCode().equals(HttpStatus.OK)) {
+          log.info("API call to get Pen coordinators success :: {}", response.rawStatusCode());
+          return response.toEntity(new ParameterizedTypeReference<List<PenCoordinator>>() {
+          });
+        } else {
+          log.error("API call to get Pen coordinators failed :: {}", response.rawStatusCode());
           return Mono.just(ResponseEntity.status(response.statusCode()).build());
         }
       });
