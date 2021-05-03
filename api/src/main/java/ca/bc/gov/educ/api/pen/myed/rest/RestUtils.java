@@ -2,14 +2,11 @@ package ca.bc.gov.educ.api.pen.myed.rest;
 
 import ca.bc.gov.educ.api.pen.myed.properties.ApplicationProperties;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.penmatch.PenMatchResult;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.penmatch.PenMatchStudent;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.penservices.PenRequestStudentValidationIssue;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.penservices.PenRequestStudentValidationPayload;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.School;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.student.Student;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +14,6 @@ import lombok.val;
 import org.jboss.threads.EnhancedQueueExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,26 +26,35 @@ import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * This class is used for REST calls
- *
- * @author Om
+ * The type Rest utils.
  */
 @Component
 @Slf4j
 public class RestUtils {
 
+  /**
+   * The constant CONTENT_TYPE.
+   */
   private static final String CONTENT_TYPE = "Content-Type";
+  /**
+   * The Bg task.
+   */
   private final Executor bgTask = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("bg-task-executor-%d").build())
     .setCorePoolSize(1).setMaximumPoolSize(1).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  /**
+   * The School lock.
+   */
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
+  /**
+   * The School map.
+   */
   @Getter
   private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
   /**
@@ -58,14 +62,21 @@ public class RestUtils {
    */
 
   private final ApplicationProperties props;
+  /**
+   * The Web client.
+   */
   private final WebClient webClient;
+  /**
+   * The Is background initialization enabled.
+   */
   @Value("${initialization.background.enabled}")
   private Boolean isBackgroundInitializationEnabled;
 
   /**
    * Instantiates a new Rest utils.
    *
-   * @param props the props
+   * @param props     the props
+   * @param webClient the web client
    */
   @Autowired
   public RestUtils(final ApplicationProperties props, final WebClient webClient) {
@@ -74,6 +85,9 @@ public class RestUtils {
   }
 
 
+  /**
+   * Init.
+   */
   @PostConstruct
   public void init() {
     if (this.isBackgroundInitializationEnabled != null && this.isBackgroundInitializationEnabled) {
@@ -83,7 +97,10 @@ public class RestUtils {
     }
   }
 
-  @Scheduled(cron = "${schedule.jobs.load.school.cron}") // 0 0 0/4* * * every 4 hours
+  /**
+   * Scheduled.
+   */
+  @Scheduled(cron = "${schedule.jobs.load.school.cron}")
   public void scheduled() {
     val writeLock = this.schoolLock.writeLock();
     try {
@@ -94,6 +111,9 @@ public class RestUtils {
     }
   }
 
+  /**
+   * Populate school map.
+   */
   private void populateSchoolMap() {
     for (val school : this.getSchools()) {
       this.schoolMap.putIfAbsent(school.getDistNo() + school.getSchlNo(), school);
@@ -101,6 +121,12 @@ public class RestUtils {
     log.info("loaded  {} schools to memory", this.schoolMap.values().size());
   }
 
+  /**
+   * Post batch submission mono.
+   *
+   * @param penRequestBatch the pen request batch
+   * @return the mono
+   */
   public Mono<ResponseEntity<String>> postBatchSubmission(final PenRequestBatch penRequestBatch) {
     return this.webClient.post()
       .uri(this.props.getPenRegBatchApiUrl(), uriBuilder -> uriBuilder.path("/pen-request-batch-submission").build())
@@ -117,6 +143,11 @@ public class RestUtils {
       });
   }
 
+  /**
+   * Gets schools.
+   *
+   * @return the schools
+   */
   public List<School> getSchools() {
     log.info("calling school api to load schools to memory");
     return this.webClient.get()
@@ -128,6 +159,12 @@ public class RestUtils {
       .block();
   }
 
+  /**
+   * Find batch submission result mono.
+   *
+   * @param batchID the batch id
+   * @return the mono
+   */
   public Mono<ResponseEntity<PenRequestBatchSubmissionResult>> findBatchSubmissionResult(final String batchID) {
     return this.webClient.get()
       .uri(this.props.getPenRegBatchApiUrl(), uriBuilder -> uriBuilder.path("/pen-request-batch-submission/{batchID}/result").build(batchID))
@@ -145,6 +182,12 @@ public class RestUtils {
   }
 
 
+  /**
+   * Gets pen coordinator.
+   *
+   * @param mincode the mincode
+   * @return the pen coordinator
+   */
   public Mono<ResponseEntity<PenCoordinator>> getPenCoordinator(final String mincode) {
     log.info("making api call to get pen coordinator data for :: {}", mincode);
     return this.webClient.get()
@@ -161,68 +204,23 @@ public class RestUtils {
       });
   }
 
-  public Mono<ResponseEntity<List<PenRequestStudentValidationIssue>>> validatePenRequestPayload(final PenRequestStudentValidationPayload validationPayload) {
+
+  public Mono<ResponseEntity<PenRequestResult>> postPenRequestToBatchAPI(final Request request) {
     return this.webClient.post()
-      .uri(this.props.getPenServicesApiURL(), uriBuilder -> uriBuilder.path("/validation/student-request").build())
+      .uri(this.props.getPenRegBatchApiUrl(), uriBuilder -> uriBuilder.path("/pen-request").build())
       .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .body(Mono.just(validationPayload), PenRequestStudentValidationPayload.class)
+      .body(Mono.just(request), Request.class)
       .exchangeToMono(response -> {
-        if (response.statusCode().equals(HttpStatus.OK)) {
-          log.info("API call to Pen Services success :: {}", response.rawStatusCode());
-          return response.toEntity(new ParameterizedTypeReference<List<PenRequestStudentValidationIssue>>() {
-          });
+        if (response.statusCode().equals(HttpStatus.OK) || response.statusCode().equals(HttpStatus.CREATED)) {
+          log.info("API call to postPenRequestToBatchAPI success :: {}, for surname :: {}", response.rawStatusCode(), request.getLegalSurname());
+          return response.toEntity(PenRequestResult.class);
+        }else if(response.statusCode().equals(HttpStatus.MULTIPLE_CHOICES)){
+          log.info("API call to postPenRequestToBatchAPI success :: {}, for surname :: {}", response.rawStatusCode(), request.getLegalSurname());
+          return Mono.just(ResponseEntity.status(response.statusCode()).build());
         } else {
-          log.info("API call to Pen Services failed :: {}", response.rawStatusCode());
+          log.error("API call to postPenRequestToBatchAPI failure :: {}, for surname :: {}", response.rawStatusCode(), request.getLegalSurname());
           return Mono.just(ResponseEntity.status(response.statusCode()).build());
         }
       });
-  }
-
-
-  public Mono<ResponseEntity<PenMatchResult>> processPenMatch(final PenMatchStudent penMatchPayload) {
-    return this.webClient.post()
-      .uri(this.props.getPenMatchApiURL())
-      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .body(Mono.just(penMatchPayload), PenMatchStudent.class)
-      .exchangeToMono(response -> {
-        if (response.statusCode().equals(HttpStatus.OK)) {
-          return response.toEntity(PenMatchResult.class);
-        } else {
-          return Mono.just(ResponseEntity.status(response.statusCode()).build());
-        }
-      }).doOnSuccess(this::logPenMatchOutcome);
-  }
-
-  private void logPenMatchOutcome(ResponseEntity<PenMatchResult> penMatchResultResponseEntity) {
-    if (penMatchResultResponseEntity.getStatusCodeValue() == 200) {
-      val body = penMatchResultResponseEntity.getBody();
-      log.info("Pen Match API call success, status :: {}, body :: {}", penMatchResultResponseEntity.getStatusCodeValue(), body != null ? body.toString() : "");
-    } else {
-      log.info("Pen Match API call failed, status :: {}", penMatchResultResponseEntity.getStatusCodeValue());
-    }
-  }
-
-  public String getNextPenNumber() {
-    val guid =  UUID.randomUUID();
-    log.info("generate new pen called for guid :: {}",guid);
-    val pen = this.webClient.get()
-      .uri(this.props.getPenServicesApiURL(), uri -> uri.path("/next-pen-number")
-        .queryParam("transactionID", guid).build())
-      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .retrieve()
-      .bodyToMono(String.class)
-      .block();
-    log.info("got new pen :: {} for guid :: {}", pen, guid);
-    return pen;
-  }
-
-  public Student createStudent(final Student student) {
-    return this.webClient.post()
-      .uri(this.props.getStudentApiURL())
-      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .body(Mono.just(student), Student.class)
-      .retrieve()
-      .bodyToMono(Student.class)
-      .block();
   }
 }

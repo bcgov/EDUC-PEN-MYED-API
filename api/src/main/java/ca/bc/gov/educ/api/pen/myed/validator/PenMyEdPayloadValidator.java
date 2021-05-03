@@ -17,17 +17,40 @@ import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Pen my ed payload validator.
+ */
 @Component
 @Slf4j
 public class PenMyEdPayloadValidator {
+  /**
+   * The constant MINCODE.
+   */
   private static final String MINCODE = "mincode";
+  /**
+   * The Rest utils.
+   */
   private final RestUtils restUtils;
+  /**
+   * The Dob format.
+   */
   private final DateTimeFormatter dobFormat = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
 
+  /**
+   * Instantiates a new Pen my ed payload validator.
+   *
+   * @param restUtils the rest utils
+   */
   public PenMyEdPayloadValidator(final RestUtils restUtils) {
     this.restUtils = restUtils;
   }
 
+  /**
+   * Validate batch submission payload list.
+   *
+   * @param penRequestBatchSubmission the pen request batch submission
+   * @return the list
+   */
   public List<FieldError> validateBatchSubmissionPayload(PenRequestBatchSubmission penRequestBatchSubmission) {
     final List<FieldError> apiValidationErrors = new ArrayList<>();
     val school = validateSchoolInfo(penRequestBatchSubmission.getMincode(), apiValidationErrors);
@@ -53,6 +76,12 @@ public class PenMyEdPayloadValidator {
     return apiValidationErrors;
   }
 
+  /**
+   * Validate pen request payload list.
+   *
+   * @param request the request
+   * @return the list
+   */
   public List<FieldError> validatePenRequestPayload(final Request request) {
     final List<FieldError> apiValidationErrors = new ArrayList<>();
     validateSchoolInfo(request.getMincode(), apiValidationErrors);
@@ -64,6 +93,13 @@ public class PenMyEdPayloadValidator {
     return apiValidationErrors;
   }
 
+  /**
+   * Validate school info school.
+   *
+   * @param mincode             the mincode
+   * @param apiValidationErrors the api validation errors
+   * @return the school
+   */
   private School validateSchoolInfo(String mincode, List<FieldError> apiValidationErrors) {
     val school = this.restUtils.getSchoolMap().get(mincode);
     if (school == null) {
@@ -82,6 +118,14 @@ public class PenMyEdPayloadValidator {
     return school;
   }
 
+  /**
+   * Create field error field error.
+   *
+   * @param fieldName     the field name
+   * @param rejectedValue the rejected value
+   * @param message       the message
+   * @return the field error
+   */
   private FieldError createFieldError(String fieldName, Object rejectedValue, String message) {
     return new FieldError("penRequest", fieldName, rejectedValue, false, null, null, message);
   }

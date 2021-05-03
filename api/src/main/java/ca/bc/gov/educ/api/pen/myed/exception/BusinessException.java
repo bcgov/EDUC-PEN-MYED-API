@@ -3,11 +3,21 @@ package ca.bc.gov.educ.api.pen.myed.exception;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The type Business exception.
+ */
 @Slf4j
 public class BusinessException extends Exception {
+  /**
+   * The constant serialVersionUID.
+   */
   private static final long serialVersionUID = -4128980175291948277L;
+  /**
+   * The Error message.
+   */
   @Getter
   private final String errorMessage;
+
   /**
    * Instantiates a new Business exception.
    *

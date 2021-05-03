@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * The type Pen my ed api application.
+ */
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableCaching
@@ -26,6 +29,7 @@ public class PenMyEdAPIApplication {
   public static void main(String[] args) {
     SpringApplication.run(PenMyEdAPIApplication.class, args);
   }
+
   /**
    * The type Web security configuration.
    */

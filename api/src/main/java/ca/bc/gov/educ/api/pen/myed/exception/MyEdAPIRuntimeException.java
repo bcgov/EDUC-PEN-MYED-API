@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.api.pen.myed.exception;
 
 /**
- * The type Pen reg api runtime exception.
+ * The type My ed api runtime exception.
  */
 public class MyEdAPIRuntimeException extends RuntimeException {
 
@@ -11,7 +11,7 @@ public class MyEdAPIRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 5241655513745148898L;
 
   /**
-   * Instantiates a new Pen reg api runtime exception.
+   * Instantiates a new My ed api runtime exception.
    *
    * @param message the message
    */
@@ -19,6 +19,11 @@ public class MyEdAPIRuntimeException extends RuntimeException {
 		super(message);
 	}
 
+  /**
+   * Instantiates a new My ed api runtime exception.
+   *
+   * @param exception the exception
+   */
   public MyEdAPIRuntimeException(Throwable exception) {
     super(exception);
   }

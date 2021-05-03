@@ -11,11 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The type Pen reg batch decorator.
+ */
 @Slf4j
 public abstract class PenRegBatchDecorator implements PenRegBatchMapper {
 
+  /**
+   * The Mapper.
+   */
   private final PenRegBatchMapper mapper;
 
+  /**
+   * Instantiates a new Pen reg batch decorator.
+   *
+   * @param mapper the mapper
+   */
   protected PenRegBatchDecorator(final PenRegBatchMapper mapper) {
     this.mapper = mapper;
   }
@@ -29,7 +40,7 @@ public abstract class PenRegBatchDecorator implements PenRegBatchMapper {
     penRequestBatch.setFileName(UUID.randomUUID().toString());
     penRequestBatch.setExtractDate(LocalDateTime.now().withNano(0).toString());
     penRequestBatch.setInsertDate(LocalDateTime.now().withNano(0).toString());
-    int recordNum = 1;
+    var recordNum = 1;
     for (val student : penRequestBatchSubmission.getStudents()) {
       final PenRequestBatchStudent penRequestBatchStudent = this.mapper.toPenRequestBatchStudent(student);
       updateStudent(penRequestBatchSubmission, penRequestBatchStudent);
@@ -40,6 +51,12 @@ public abstract class PenRegBatchDecorator implements PenRegBatchMapper {
     return penRequestBatch;
   }
 
+  /**
+   * Update student.
+   *
+   * @param penRequestBatchSubmission the pen request batch submission
+   * @param penRequestBatchStudent    the pen request batch student
+   */
   private void updateStudent(PenRequestBatchSubmission penRequestBatchSubmission, PenRequestBatchStudent penRequestBatchStudent) {
     penRequestBatchStudent.setCreateUser(penRequestBatchSubmission.getCreateUser());
     penRequestBatchStudent.setUpdateUser(penRequestBatchSubmission.getUpdateUser());

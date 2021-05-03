@@ -10,9 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * The type Pen reg api interceptor.
- *
- * @author Om
+ * The type Pen my ed api interceptor.
  */
 @Component
 public class PenMyEdAPIInterceptor implements AsyncHandlerInterceptor {

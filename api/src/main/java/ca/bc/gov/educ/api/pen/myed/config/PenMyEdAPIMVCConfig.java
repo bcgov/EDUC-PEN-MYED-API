@@ -8,23 +8,21 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * The type Pen reg api mvc config.
- *
- * @author Om
+ * The type Pen my ed apimvc config.
  */
 @Configuration
 public class PenMyEdAPIMVCConfig implements WebMvcConfigurer {
 
   /**
-   * The Pen reg api interceptor.
+   * The Interceptor.
    */
   @Getter(AccessLevel.PRIVATE)
   private final PenMyEdAPIInterceptor interceptor;
 
   /**
-   * Instantiates a new Pen reg api mvc config.
+   * Instantiates a new Pen my ed apimvc config.
    *
-   * @param interceptor the pen reg api interceptor
+   * @param interceptor the interceptor
    */
   @Autowired
   public PenMyEdAPIMVCConfig(final PenMyEdAPIInterceptor interceptor) {

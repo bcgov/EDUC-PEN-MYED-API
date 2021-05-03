@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 
 /**
- * The type Pen request batch student validation payload.
+ * The type Pen request student validation payload.
  */
 @Data
 @AllArgsConstructor
@@ -82,5 +82,8 @@ public class PenRequestStudentValidationPayload {
    * The Update user.
    */
   String updateUser;
+  /**
+   * The Mincode.
+   */
   String mincode;
 }

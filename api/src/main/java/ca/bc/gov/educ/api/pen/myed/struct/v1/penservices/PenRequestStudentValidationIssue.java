@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Pen request student validation issue.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,15 +18,15 @@ public class PenRequestStudentValidationIssue {
    */
   String penRequestBatchStudentValidationIssueId;
   /**
-   * The Pen request batch validation issue severity code by pen request batch student validation issue severity code.
+   * The Pen request batch validation issue severity code.
    */
   String penRequestBatchValidationIssueSeverityCode;
   /**
-   * The Pen request batch validation issue type code by pen request batch student validation issue type code.
+   * The Pen request batch validation issue type code.
    */
   String penRequestBatchValidationIssueTypeCode;
   /**
-   * The Pen request batch validation field code by pen request batch student validation field code.
+   * The Pen request batch validation field code.
    */
   String penRequestBatchValidationFieldCode;
 }

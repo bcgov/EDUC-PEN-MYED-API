@@ -12,6 +12,9 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
+/**
+ * The type Student.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -102,7 +105,7 @@ public class Student implements Serializable {
   @Pattern(regexp = "^([A-Z]\\d[A-Z]\\d[A-Z]\\d|)$")
   String postalCode;
   /**
-   * The mincode.
+   * The Mincode.
    */
   @Size(max = 8)
   String mincode;
@@ -147,7 +150,13 @@ public class Student implements Serializable {
   @Size(max = 32)
   String updateUser;
 
+  /**
+   * The History activity code.
+   */
   String historyActivityCode;
 
+  /**
+   * The True student id.
+   */
   String trueStudentID;
 }
