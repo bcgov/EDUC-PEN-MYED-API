@@ -42,9 +42,9 @@ public class RestWebClient {
    */
   public RestWebClient(final ApplicationProperties props) {
     this.props = props;
-    client = HttpClient.create().compress(true)
+    this.client = HttpClient.create().compress(true)
       .resolver(spec -> spec.queryTimeout(Duration.ofMillis(200)).trace("DNS", LogLevel.TRACE));
-    client.warmup()
+    this.client.warmup()
       .block();
   }
 
@@ -69,8 +69,11 @@ public class RestWebClient {
     oauthFilter.setDefaultClientRegistrationId(this.props.getClientID());
     val factory = new DefaultUriBuilderFactory();
     factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
-    final ClientHttpConnector connector = new ReactorClientHttpConnector(client);
+    final ClientHttpConnector connector = new ReactorClientHttpConnector(this.client);
     return WebClient.builder()
+      .codecs(configurer -> configurer
+        .defaultCodecs()
+        .maxInMemorySize(100 * 1024 * 1024))
       .clientConnector(connector)
       .uriBuilderFactory(factory)
       .filter(oauthFilter)

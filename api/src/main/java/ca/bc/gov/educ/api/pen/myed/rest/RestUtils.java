@@ -58,6 +58,7 @@ public class RestUtils {
    */
   @Getter
   private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
+
   /**
    * The Props.
    */
@@ -94,11 +95,11 @@ public class RestUtils {
     if (this.isBackgroundInitializationEnabled != null && this.isBackgroundInitializationEnabled) {
       this.bgTask.execute(() -> {
         this.populateSchoolMap();
-        this.getPenCoordinators();
+        this.getPenCoordinators().block();
       });
     } else {
       this.populateSchoolMap();
-      this.getPenCoordinators();
+      this.getPenCoordinators().block();
     }
   }
 
