@@ -53,11 +53,7 @@ public class PenRequestBatchSubmission {
   @Size(max = 6)
   @NotNull
   String studentCount;
-  /**
-   * The School group code.
-   */
-  @NotBlank
-  String schoolGroupCode;
+
   /**
    * The School name.
    */

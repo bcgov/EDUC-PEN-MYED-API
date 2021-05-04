@@ -40,6 +40,12 @@ public abstract class PenRegBatchDecorator implements PenRegBatchMapper {
     penRequestBatch.setFileName(UUID.randomUUID().toString());
     penRequestBatch.setExtractDate(LocalDateTime.now().withNano(0).toString());
     penRequestBatch.setInsertDate(LocalDateTime.now().withNano(0).toString());
+    if (penRequestBatch.getMincode().startsWith("102")) {
+      penRequestBatch.setSchoolGroupCode("PSI");
+    } else {
+      penRequestBatch.setSchoolGroupCode("K12");
+    }
+
     var recordNum = 1;
     for (val student : penRequestBatchSubmission.getStudents()) {
       final PenRequestBatchStudent penRequestBatchStudent = this.mapper.toPenRequestBatchStudent(student);
