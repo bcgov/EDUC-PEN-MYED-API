@@ -7,6 +7,8 @@ import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.apache.commons.lang3.RegExUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -58,7 +60,14 @@ public class PenMyEdService {
 
 
   public Mono<ResponseEntity<PenRequestResult>> postPenRequestToBatchAPI(final Request request) {
-    return this.restUtils.postPenRequestToBatchAPI(request);
+    return this.restUtils.postPenRequestToBatchAPI(request).map(penRequestResultResponseEntity -> {
+      val body = penRequestResultResponseEntity.getBody();
+      if (body != null) {
+        body.setBirthDate(RegExUtils.removeAll(body.getBirthDate(), "[^\\d]"));
+        return ResponseEntity.status(penRequestResultResponseEntity.getStatusCode()).body(body);
+      }
+      return penRequestResultResponseEntity;
+    });
   }
 
   public Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators() {
