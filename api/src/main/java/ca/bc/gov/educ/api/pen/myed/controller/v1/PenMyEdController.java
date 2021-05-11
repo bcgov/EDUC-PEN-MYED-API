@@ -5,10 +5,7 @@ import ca.bc.gov.educ.api.pen.myed.exception.InvalidPayloadException;
 import ca.bc.gov.educ.api.pen.myed.exception.errors.ApiError;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.PenRegBatchMapper;
 import ca.bc.gov.educ.api.pen.myed.service.v1.PenMyEdService;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmission;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.*;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
 import ca.bc.gov.educ.api.pen.myed.validator.PenMyEdPayloadValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +27,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RestController
 @Slf4j
 public class PenMyEdController implements PenMyEdApiEndpoint {
+  public static final String PAYLOAD_CONTAINS_INVALID_DATA = "Payload contains invalid data.";
   /**
    * The Pen my ed payload validator.
    */
@@ -56,7 +54,7 @@ public class PenMyEdController implements PenMyEdApiEndpoint {
 
     val payloadErrors = this.penMyEdPayloadValidator.validateBatchSubmissionPayload(penRequestBatchSubmission);
     if (!payloadErrors.isEmpty()) {
-      final ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
+      final ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(PAYLOAD_CONTAINS_INVALID_DATA).status(BAD_REQUEST).build();
       error.addValidationErrors(payloadErrors);
       throw new InvalidPayloadException(error);
     }
@@ -79,11 +77,22 @@ public class PenMyEdController implements PenMyEdApiEndpoint {
     // struct validation
     val payloadErrors = this.penMyEdPayloadValidator.validatePenRequestPayload(request);
     if (!payloadErrors.isEmpty()) {
-      final ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
+      final ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(PAYLOAD_CONTAINS_INVALID_DATA).status(BAD_REQUEST).build();
       error.addValidationErrors(payloadErrors);
       throw new InvalidPayloadException(error);
     }
     return this.penMyEdService.postPenRequestToBatchAPI(request);
+  }
+
+  @Override
+  public Mono<ResponseEntity<List<MyEdStudent>>> findStudents(final List<String> penList) {
+    val payloadErrors = this.penMyEdPayloadValidator.validatePenList(penList);
+    if (!payloadErrors.isEmpty()) {
+      final ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(PAYLOAD_CONTAINS_INVALID_DATA).status(BAD_REQUEST).build();
+      error.addValidationErrors(payloadErrors);
+      throw new InvalidPayloadException(error);
+    }
+    return this.penMyEdService.findStudents(penList);
   }
 
 }

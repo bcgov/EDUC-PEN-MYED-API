@@ -7,6 +7,8 @@ import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.School;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.student.RestPageImpl;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.student.Student;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +23,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -188,8 +192,6 @@ public class RestUtils {
   }
 
 
-
-
   public Mono<ResponseEntity<PenRequestResult>> postPenRequestToBatchAPI(final Request request) {
     return this.webClient.post()
       .uri(this.props.getPenRegBatchApiUrl(), uriBuilder -> uriBuilder.path("/pen-request").build())
@@ -224,5 +226,29 @@ public class RestUtils {
           return Mono.just(ResponseEntity.status(response.statusCode()).build());
         }
       });
+  }
+
+  public Mono<ResponseEntity<RestPageImpl<Student>>> findStudentsByCriteria(final String criteriaJSON, final Integer pageSize) {
+    return this.webClient.get()
+      .uri(this.getStudentPaginatedURI(criteriaJSON, pageSize))
+      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+      .exchangeToMono(response -> {
+        if (response.statusCode().equals(HttpStatus.OK)) {
+          log.info("API call to find students success :: {}", response.rawStatusCode());
+          return response.toEntity(new ParameterizedTypeReference<RestPageImpl<Student>>() {
+          });
+        } else {
+          log.error("API call to find students failed :: {}", response.rawStatusCode());
+          return Mono.just(ResponseEntity.status(response.statusCode()).build());
+        }
+      });
+  }
+
+  private URI getStudentPaginatedURI(final String criteriaJSON, final Integer pageSize) {
+    return UriComponentsBuilder.fromHttpUrl(this.props.getStudentApiURL())
+      .path("/paginated")
+      .queryParam("searchCriteriaList", criteriaJSON)
+      .queryParam("pageSize", pageSize).build().encode().toUri();
+
   }
 }
