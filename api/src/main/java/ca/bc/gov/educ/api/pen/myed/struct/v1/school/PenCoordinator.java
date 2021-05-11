@@ -39,8 +39,4 @@ public class PenCoordinator {
    * The Pen coordinator fax.
    */
   String penCoordinatorFax;
-  /**
-   * The Send pen results via.
-   */
-  String sendPenResultsVia;
 }

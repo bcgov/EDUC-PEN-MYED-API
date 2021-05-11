@@ -3,10 +3,10 @@ package ca.bc.gov.educ.api.pen.myed.rest;
 import ca.bc.gov.educ.api.pen.myed.properties.ApplicationProperties;
 import io.netty.handler.logging.LogLevel;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
@@ -54,7 +54,8 @@ public class RestWebClient {
    * @return the web client
    */
   @Bean
-  WebClient webClient() {
+  @Autowired
+  WebClient webClient(final WebClient.Builder builder) {
     val clientRegistryRepo = new InMemoryReactiveClientRegistrationRepository(ClientRegistration
       .withRegistrationId(this.props.getClientID())
       .tokenUri(this.props.getTokenURL())
@@ -69,8 +70,8 @@ public class RestWebClient {
     oauthFilter.setDefaultClientRegistrationId(this.props.getClientID());
     val factory = new DefaultUriBuilderFactory();
     factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
-    final ClientHttpConnector connector = new ReactorClientHttpConnector(this.client);
-    return WebClient.builder()
+    val connector = new ReactorClientHttpConnector(this.client);
+    return builder
       .codecs(configurer -> configurer
         .defaultCodecs()
         .maxInMemorySize(100 * 1024 * 1024))
