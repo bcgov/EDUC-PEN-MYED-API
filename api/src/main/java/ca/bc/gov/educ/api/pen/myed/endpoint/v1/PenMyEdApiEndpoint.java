@@ -1,12 +1,11 @@
 package ca.bc.gov.educ.api.pen.myed.endpoint.v1;
 
-import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmission;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.*;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.student.Student;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,7 +29,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/v1/pen-myed")
 @OpenAPIDefinition(info = @Info(title = "API for Pen MyEd Integration.", description = "This API exposes different endpoints for MyEd.", version = "1"), security =
   {@SecurityRequirement(name =
-    "OAUTH2", scopes = {"MYED_READ_PEN_REQUEST_BATCH", "MYED_WRITE_PEN_REQUEST_BATCH", "MYED_READ_PEN_COORDINATOR","MYED_VALIDATE_PEN"})})
+    "OAUTH2", scopes = {"MYED_READ_PEN_REQUEST_BATCH", "MYED_WRITE_PEN_REQUEST_BATCH", "MYED_READ_PEN_COORDINATOR", "MYED_VALIDATE_PEN"})})
 public interface PenMyEdApiEndpoint {
   /**
    * Create new batch submission mono.
@@ -38,9 +37,9 @@ public interface PenMyEdApiEndpoint {
    * @param penRequestBatchSubmission the pen request batch submission
    * @return the mono
    */
-  @PostMapping("/pen-request-batch-submission")
+  @PostMapping("/pen-request-batch")
   @PreAuthorize("hasAuthority('SCOPE_MYED_WRITE_PEN_REQUEST_BATCH')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST") , @ApiResponse(responseCode = "409", description = "CONFLICT")})
+  @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "409", description = "CONFLICT")})
   @ResponseStatus(CREATED)
   @Tag(name = "Endpoint to create Pen Request Batch Submission.",
     description = "This endpoint will allow MyEd to submit a batch request via api call. If the api call was success it will return a guid {batchSubmissionID} for further tracking.")
@@ -53,9 +52,9 @@ public interface PenMyEdApiEndpoint {
    * @param batchSubmissionID the batch submission id
    * @return the mono
    */
-  @GetMapping("/pen-request-batch-submission/{batchSubmissionID}/result")
+  @GetMapping("/pen-request-batch/{batchSubmissionID}/result")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_REQUEST_BATCH')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK" , content = @Content(schema = @Schema(name = "PenRequestBatchSubmissionResult", implementation = PenRequestBatchSubmissionResult.class))), @ApiResponse(responseCode = "202", description = "ACCEPTED"), @ApiResponse(responseCode = "404", description =
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(name = "PenRequestBatchSubmissionResult", implementation = PenRequestBatchSubmissionResult.class))), @ApiResponse(responseCode = "202", description = "ACCEPTED"), @ApiResponse(responseCode = "404", description =
     "NOT FOUND")})
   @Tag(name = "Endpoint to get Pen Request Batch Submission results.",
     description = "This endpoint will allow MyEd to query the results of a batch earlier submitted.")
@@ -81,8 +80,20 @@ public interface PenMyEdApiEndpoint {
    */
   @PostMapping("/pen-request")
   @PreAuthorize("hasAuthority('SCOPE_MYED_PEN_REQUEST')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"),@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "300", description = "Multiple Choices")})
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "300", description = "Multiple Choices")})
   @Tag(name = "Endpoint to request a student PEN.", description = "Endpoint to request a student PEN.")
   @Schema(name = "Request", implementation = Request.class)
   Mono<ResponseEntity<PenRequestResult>> penRequest(@Validated @RequestBody Request request);
+
+  /**
+   * Pen request mono.
+   *
+   * @param penList the list of pen numbers for which student details will be fetched.
+   * @return the mono
+   */
+  @PostMapping("/students")
+  @PreAuthorize("hasAuthority('SCOPE_MYED_READ_STUDENT')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(name = "Student", implementation = Student.class)))), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @Tag(name = "Endpoint to request a student PEN.", description = "Endpoint to request a student PEN.")
+  Mono<ResponseEntity<List<MyEdStudent>>> findStudents(@Validated @RequestBody List<String> penList);
 }

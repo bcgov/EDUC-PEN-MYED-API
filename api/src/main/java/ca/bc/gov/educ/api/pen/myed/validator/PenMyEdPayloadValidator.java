@@ -27,6 +27,7 @@ public class PenMyEdPayloadValidator {
    * The constant MINCODE.
    */
   private static final String MINCODE = "mincode";
+  public static final String PEN_LIST = "Pen List";
   /**
    * The Rest utils.
    */
@@ -128,5 +129,22 @@ public class PenMyEdPayloadValidator {
    */
   private FieldError createFieldError(String fieldName, Object rejectedValue, String message) {
     return new FieldError("penRequest", fieldName, rejectedValue, false, null, null, message);
+  }
+
+  public List<FieldError> validatePenList(List<String> penList) {
+    final List<FieldError> apiValidationErrors = new ArrayList<>();
+    if (penList.isEmpty()) {
+      apiValidationErrors.add(new FieldError(PEN_LIST, "pen", "At Least one pen is required in the payload."));
+    }
+    if (penList.size() > 500) {
+      apiValidationErrors.add(new FieldError(PEN_LIST, "pen", "Maximum 500 pen numbers allowed."));
+    }
+    for (var index = 0; index < penList.size(); index++) {
+      val pen = penList.get(index);
+      if (StringUtils.isBlank(pen) || !StringUtils.isNumeric(pen) || StringUtils.length(pen) != 9) {
+        apiValidationErrors.add(new FieldError(PEN_LIST, "pen", "Invalid pen at Index " + index));
+      }
+    }
+    return apiValidationErrors;
   }
 }
