@@ -2,7 +2,6 @@ package ca.bc.gov.educ.api.pen.myed.endpoint.v1;
 
 import ca.bc.gov.educ.api.pen.myed.struct.v1.*;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.student.Student;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -93,7 +92,7 @@ public interface PenMyEdApiEndpoint {
    */
   @PostMapping("/students")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_STUDENT')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(name = "Student", implementation = Student.class)))), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(name = "Student", implementation = MyEdStudent.class)))), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Endpoint to find student demographics by pen.", description = "This endpoint accepts a list of pen numbers in the payload as a json and responds the demographic information found for those pen numbers.")
   Mono<ResponseEntity<List<MyEdStudent>>> findStudents(@Validated @RequestBody List<String> penList);
 }
