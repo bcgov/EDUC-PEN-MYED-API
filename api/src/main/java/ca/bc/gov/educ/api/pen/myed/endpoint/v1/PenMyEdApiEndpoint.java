@@ -66,7 +66,7 @@ public interface PenMyEdApiEndpoint {
    */
   @GetMapping("/pen-coordinators")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_COORDINATOR')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(name = "PenCoordinator", implementation = PenCoordinator.class))),
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(name = "PenCoordinator", implementation = PenCoordinator.class)))),
     @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Tag(name = "Endpoint to get all Pen Coordinators.", description = "Endpoint to get all Pen Coordinators.")
   Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators();
@@ -80,7 +80,7 @@ public interface PenMyEdApiEndpoint {
    */
   @PostMapping("/pen-request")
   @PreAuthorize("hasAuthority('SCOPE_MYED_PEN_REQUEST')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "300", description = "Multiple Choices")})
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(name = "PenRequestResult", implementation = PenRequestResult.class))), @ApiResponse(responseCode = "201", description = "CREATED", content = @Content(schema = @Schema(name = "PenRequestResult", implementation = PenRequestResult.class))), @ApiResponse(responseCode = "300", description = "Multiple Choices")})
   @Tag(name = "Endpoint to request a student PEN.", description = "Endpoint to request a student PEN.")
   @Schema(name = "Request", implementation = Request.class)
   Mono<ResponseEntity<PenRequestResult>> penRequest(@Validated @RequestBody Request request);
@@ -94,6 +94,6 @@ public interface PenMyEdApiEndpoint {
   @PostMapping("/students")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(name = "Student", implementation = Student.class)))), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
-  @Tag(name = "Endpoint to request a student PEN.", description = "Endpoint to request a student PEN.")
+  @Tag(name = "Endpoint to find student demographics by pen.", description = "This endpoint accepts a list of pen numbers in the payload as a json and responds the demographic information found for those pen numbers.")
   Mono<ResponseEntity<List<MyEdStudent>>> findStudents(@Validated @RequestBody List<String> penList);
 }
