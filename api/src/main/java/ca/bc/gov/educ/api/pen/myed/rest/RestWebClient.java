@@ -43,7 +43,7 @@ public class RestWebClient {
   public RestWebClient(final ApplicationProperties props) {
     this.props = props;
     this.client = HttpClient.create().compress(true)
-      .resolver(spec -> spec.queryTimeout(Duration.ofMillis(200)).trace("DNS", LogLevel.TRACE));
+      .resolver(spec -> spec.queryTimeout(Duration.ofSeconds(5)).trace("DNS", LogLevel.TRACE));
     this.client.warmup()
       .block();
   }
