@@ -76,7 +76,7 @@ FLB_CONFIG="[SERVICE]
 [FILTER]
    Name record_modifier
    Match *
-   Record hostname \${HOSTNAME}
+   Record hostname \"\${HOSTNAME}\",
 [OUTPUT]
    Name   stdout
    Match  *
