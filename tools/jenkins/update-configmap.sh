@@ -72,6 +72,7 @@ FLB_CONFIG="[SERVICE]
 [INPUT]
    Name   tail
    Path   /mnt/log/*
+   Exclude_Path *.gz,*.zip
    Mem_Buf_Limit 20MB
 [FILTER]
    Name record_modifier
