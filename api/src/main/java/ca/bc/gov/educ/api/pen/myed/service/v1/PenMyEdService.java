@@ -41,7 +41,7 @@ public class PenMyEdService {
   private final RestUtils restUtils;
 
   /**
-   * Instantiates a new Pen my ed service.
+   * Instantiates a new Pen my ed service. -TEST
    *
    * @param restUtils the rest utils
    */
