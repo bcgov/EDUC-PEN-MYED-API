@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,6 +41,23 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
    */
   private ResponseEntity<Object> buildResponseEntity(final ApiError apiError) {
     return new ResponseEntity<>(apiError, apiError.getStatus());
+  }
+
+  /**
+   * Handles HttpMessageNotReadableException
+   *
+   * @param ex      HttpMessageNotReadableException
+   * @param headers http headers
+   * @param status  http status code
+   * @param request the request object
+   * @return response
+   */
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    log.warn("handleHttpMessageNotReadable: ", ex);
+    String error = "Malformed JSON request";
+    log.error("{} ", error, ex);
+    return buildResponseEntity(new ApiError(BAD_REQUEST, error, ex));
   }
 
   /**
