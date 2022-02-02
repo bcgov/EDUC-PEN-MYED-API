@@ -29,9 +29,9 @@ public class MyEdStudent {
    */
   String legalGivenName;
   /**
-   * The Legal middle names.
+   * The Legal middle name.
    */
-  String legalMiddleNames;
+  String legalMiddleName;
   /**
    * The Usual surname.
    */
@@ -41,9 +41,9 @@ public class MyEdStudent {
    */
   String usualGivenName;
   /**
-   * The Usual middle names.
+   * The Usual middle name.
    */
-  String usualMiddleNames;
+  String usualMiddleName;
   /**
    * The Birth date.
    */
