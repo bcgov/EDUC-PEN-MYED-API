@@ -63,7 +63,7 @@ public class PenMyEdController implements PenMyEdApiEndpoint {
   }
 
   @Override
-  public Mono<ResponseEntity<PenRequestBatchSubmissionResult>> batchSubmissionResult(final UUID batchSubmissionID) {
+  public Mono<ResponseEntity<MyEdSubmissionResult>> batchSubmissionResult(final UUID batchSubmissionID) {
     return this.penMyEdService.getBatchSubmissionResult(batchSubmissionID);
   }
 

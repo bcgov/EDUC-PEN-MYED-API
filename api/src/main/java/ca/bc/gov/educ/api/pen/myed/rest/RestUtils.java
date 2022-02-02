@@ -1,6 +1,9 @@
 package ca.bc.gov.educ.api.pen.myed.rest;
 
+import ca.bc.gov.educ.api.pen.myed.exception.MyEdAPIRuntimeException;
+import ca.bc.gov.educ.api.pen.myed.mappers.v1.SubmissionResultMapper;
 import ca.bc.gov.educ.api.pen.myed.properties.ApplicationProperties;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdSubmissionResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
@@ -175,22 +178,20 @@ public class RestUtils {
    * @param batchID the batch id
    * @return the mono
    */
-  public Mono<ResponseEntity<PenRequestBatchSubmissionResult>> findBatchSubmissionResult(final String batchID) {
-    return this.webClient.get()
+  public Mono<ResponseEntity<MyEdSubmissionResult>> findBatchSubmissionResult(final String batchID) {
+    var response = this.webClient.get()
       .uri(this.props.getPenRegBatchApiUrl(), uriBuilder -> uriBuilder.path("/pen-request-batch-submission/{batchID}/result").build(batchID))
       .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .exchangeToMono(response -> {
-        if (response.statusCode().equals(HttpStatus.OK)) {
-          log.info("Batch submission result API call success, status :: {}, batch ID :: {}", response.rawStatusCode(), batchID);
-          return response.toEntity(PenRequestBatchSubmissionResult.class);
-        } else {
-          log.info("Batch submission result API call failed, status :: {}, batch ID :: {}", response.rawStatusCode(), batchID);
-          return Mono.just(ResponseEntity.status(response.statusCode()).build());
-        }
-      });
+      .retrieve()
+      .bodyToMono(PenRequestBatchSubmissionResult.class)
+      .block();
 
+    if (response == null) {
+      throw new MyEdAPIRuntimeException("Error while fetching batch submission result");
+    }
+
+    return Mono.just(ResponseEntity.ok(SubmissionResultMapper.mapper.toMyEdSubmissionResult(response)));
   }
-
 
   public Mono<ResponseEntity<PenRequestResult>> postPenRequestToBatchAPI(final Request request) {
     return this.webClient.post()

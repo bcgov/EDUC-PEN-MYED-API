@@ -3,7 +3,7 @@ package ca.bc.gov.educ.api.pen.myed.service.v1;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.MyEdStudentMapper;
 import ca.bc.gov.educ.api.pen.myed.rest.RestUtils;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdStudent;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdSubmissionResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
@@ -66,7 +66,7 @@ public class PenMyEdService {
    * @param batchSubmissionID the batch submission id
    * @return the batch submission result
    */
-  public Mono<ResponseEntity<PenRequestBatchSubmissionResult>> getBatchSubmissionResult(final UUID batchSubmissionID) {
+  public Mono<ResponseEntity<MyEdSubmissionResult>> getBatchSubmissionResult(final UUID batchSubmissionID) {
     return this.restUtils.findBatchSubmissionResult(batchSubmissionID.toString());
   }
 
