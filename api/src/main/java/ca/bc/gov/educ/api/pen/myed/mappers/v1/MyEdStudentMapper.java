@@ -13,8 +13,10 @@ public interface MyEdStudentMapper {
   MyEdStudentMapper mapper = Mappers.getMapper(MyEdStudentMapper.class);
 
   @Mapping(target = "usualSurname", source = "usualLastName")
+  @Mapping(target = "usualMiddleName", source = "usualMiddleNames")
   @Mapping(target = "usualGivenName", source = "usualFirstName")
   @Mapping(target = "legalSurname", source = "legalLastName")
+  @Mapping(target = "legalMiddleName", source = "legalMiddleNames")
   @Mapping(target = "legalGivenName", source = "legalFirstName")
   @Mapping(target = "gender", source = "genderCode")
   @Mapping(target = "enrolledGradeCode", source = "gradeCode")
