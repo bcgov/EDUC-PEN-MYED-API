@@ -53,12 +53,12 @@ public interface PenMyEdApiEndpoint {
    */
   @GetMapping("/pen-request-batch/{batchSubmissionID}/result")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_REQUEST_BATCH')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(name = "PenRequestBatchSubmissionResult", implementation = PenRequestBatchSubmissionResult.class))), @ApiResponse(responseCode = "202", description = "ACCEPTED"), @ApiResponse(responseCode = "404", description =
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(name = "PenRequestBatchSubmissionResult", implementation = MyEdSubmissionResult.class))), @ApiResponse(responseCode = "202", description = "ACCEPTED"), @ApiResponse(responseCode = "404", description =
     "NOT FOUND")})
   @Tag(name = "Endpoint to get Pen Request Batch Submission results.",
     description = "This endpoint will allow MyEd to query the results of a batch earlier submitted.")
-  @Schema(name = "PenRequestBatchSubmissionResult", implementation = PenRequestBatchSubmissionResult.class)
-  Mono<ResponseEntity<PenRequestBatchSubmissionResult>> batchSubmissionResult(@PathVariable UUID batchSubmissionID);
+  @Schema(name = "MyEdSubmissionResult", implementation = MyEdSubmissionResult.class)
+  Mono<ResponseEntity<MyEdSubmissionResult>> batchSubmissionResult(@PathVariable UUID batchSubmissionID);
 
   /**
    *
