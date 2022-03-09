@@ -25,8 +25,4 @@ public class MyEdSubmissionResult {
    * The Differences list.
    */
   List<MyEdSchoolMinListItem> differencesList;
-  /**
-   * The Confirmed list.
-   */
-  List<MyEdSchoolMinListItem> confirmedList;
 }

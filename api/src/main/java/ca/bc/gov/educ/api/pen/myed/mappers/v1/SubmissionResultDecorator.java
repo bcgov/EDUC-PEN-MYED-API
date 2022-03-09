@@ -32,7 +32,6 @@ public abstract class SubmissionResultDecorator implements SubmissionResultMappe
     myEdSubmissionResult.setExactMatchList(new ArrayList<>());
     myEdSubmissionResult.setDifferencesList(new ArrayList<>());
     myEdSubmissionResult.setNewPenAssignedList(new ArrayList<>());
-    myEdSubmissionResult.setConfirmedList(new ArrayList<>());
     myEdSubmissionResult.setPendingList(new ArrayList<>());
 
     for(ListItem item: result.getExactMatchList()){
@@ -45,13 +44,6 @@ public abstract class SubmissionResultDecorator implements SubmissionResultMappe
 
     for(ListItem item: result.getPendingList()){
       myEdSubmissionResult.getPendingList().add(listItemMapper.toMyEdListItem(item));
-    }
-
-    for(SchoolMinListItem item: result.getConfirmedList()){
-      MyEdSchoolMinListItem myEdSchoolMinListItem = new MyEdSchoolMinListItem();
-      myEdSchoolMinListItem.setSchool(listItemMapper.toMyEdListItem(item.getSchool()));
-      myEdSchoolMinListItem.setMin(listItemMapper.toMyEdListItem(item.getMin()));
-      myEdSubmissionResult.getConfirmedList().add(myEdSchoolMinListItem);
     }
 
     for(SchoolMinListItem item: result.getDifferencesList()){
