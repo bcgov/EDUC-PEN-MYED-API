@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.api.pen.myed.controller.v1;
 
 import ca.bc.gov.educ.api.pen.myed.endpoint.v1.PenMyEdApiEndpoint;
+import ca.bc.gov.educ.api.pen.myed.exception.AcceptedException;
+import ca.bc.gov.educ.api.pen.myed.exception.EntityNotFoundException;
 import ca.bc.gov.educ.api.pen.myed.exception.InvalidPayloadException;
 import ca.bc.gov.educ.api.pen.myed.exception.errors.ApiError;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.PenRegBatchMapper;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
@@ -28,6 +31,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @Slf4j
 public class PenMyEdController implements PenMyEdApiEndpoint {
   public static final String PAYLOAD_CONTAINS_INVALID_DATA = "Payload contains invalid data.";
+  public static final String INVALID_BATCH_ID = "Invalid batch ID.";
+  public static final String STILL_IN_PROGRESS = "Batch is still being processed.";
   /**
    * The Pen my ed payload validator.
    */
@@ -64,7 +69,15 @@ public class PenMyEdController implements PenMyEdApiEndpoint {
 
   @Override
   public Mono<ResponseEntity<MyEdSubmissionResult>> batchSubmissionResult(final UUID batchSubmissionID) {
-    return this.penMyEdService.getBatchSubmissionResult(batchSubmissionID);
+    try {
+      return this.penMyEdService.getBatchSubmissionResult(batchSubmissionID);
+    } catch (final EntityNotFoundException e) {
+      final ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_BATCH_ID).status(BAD_REQUEST).build();
+      throw new InvalidPayloadException(error);
+    } catch (final AcceptedException e) {
+      final ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(STILL_IN_PROGRESS).status(ACCEPTED).build();
+      throw new InvalidPayloadException(error);
+    }
   }
 
   @Override

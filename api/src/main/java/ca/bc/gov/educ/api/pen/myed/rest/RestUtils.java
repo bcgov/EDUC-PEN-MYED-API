@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.api.pen.myed.rest;
 
+import ca.bc.gov.educ.api.pen.myed.exception.AcceptedException;
+import ca.bc.gov.educ.api.pen.myed.exception.EntityNotFoundException;
 import ca.bc.gov.educ.api.pen.myed.exception.MyEdAPIRuntimeException;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.SubmissionResultMapper;
 import ca.bc.gov.educ.api.pen.myed.properties.ApplicationProperties;
@@ -26,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
@@ -179,18 +182,31 @@ public class RestUtils {
    * @return the mono
    */
   public Mono<ResponseEntity<MyEdSubmissionResult>> findBatchSubmissionResult(final String batchID) {
-    var response = this.webClient.get()
-      .uri(this.props.getPenRegBatchApiUrl(), uriBuilder -> uriBuilder.path("/pen-request-batch-submission/{batchID}/result").build(batchID))
-      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .retrieve()
-      .bodyToMono(PenRequestBatchSubmissionResult.class)
-      .block();
+    try {
+      var response = this.webClient.get()
+        .uri(this.props.getPenRegBatchApiUrl(), uriBuilder -> uriBuilder.path("/pen-request-batch-submission/{batchID}/result").build(batchID))
+        .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .retrieve()
+        .onStatus(
+          HttpStatus.ACCEPTED::equals,
+          responseAccepted -> {throw new AcceptedException();} )
+        .bodyToMono(PenRequestBatchSubmissionResult.class)
+        .block();
 
-    if (response == null) {
-      throw new MyEdAPIRuntimeException("Error while fetching batch submission result");
+      if (response == null) {
+        throw new MyEdAPIRuntimeException("Error while fetching batch submission result");
+      }
+
+      return Mono.just(ResponseEntity.ok(SubmissionResultMapper.mapper.toMyEdSubmissionResult(response)));
+    }catch (final WebClientResponseException e) {
+      if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
+        throw new EntityNotFoundException();
+      }
+      log.error("Error while fetching batch submission result", e);
+      return null;
+    }catch (final AcceptedException e) {
+      throw new AcceptedException();
     }
-
-    return Mono.just(ResponseEntity.ok(SubmissionResultMapper.mapper.toMyEdSubmissionResult(response)));
   }
 
   public Mono<ResponseEntity<PenRequestResult>> postPenRequestToBatchAPI(final Request request) {

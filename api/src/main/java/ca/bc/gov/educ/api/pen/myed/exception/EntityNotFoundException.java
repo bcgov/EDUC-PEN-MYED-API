@@ -14,6 +14,10 @@ public class EntityNotFoundException extends RuntimeException {
    */
   private static final long serialVersionUID = 4413979549737000974L;
 
+  public EntityNotFoundException() {
+    super();
+  }
+
   /**
    * Instantiates a new Entity not found exception.
    *
