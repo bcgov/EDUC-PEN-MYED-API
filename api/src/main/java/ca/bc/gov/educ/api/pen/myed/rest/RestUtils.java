@@ -25,6 +25,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -245,6 +246,7 @@ public class RestUtils {
       });
   }
 
+  @Async
   public Mono<ResponseEntity<RestPageImpl<Student>>> findStudentsByCriteria(final String criteriaJSON, final Integer pageSize) {
     return this.webClient.get()
       .uri(this.getStudentPaginatedURI(criteriaJSON, pageSize))

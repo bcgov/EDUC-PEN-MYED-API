@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.api.pen.myed.service.v1;
 
+import ca.bc.gov.educ.api.pen.myed.exception.MyEdAPIRuntimeException;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.MyEdStudentMapper;
 import ca.bc.gov.educ.api.pen.myed.rest.RestUtils;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdStudent;
@@ -8,24 +9,18 @@ import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.student.FilterOperation;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.student.Search;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.student.SearchCriteria;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.student.ValueType;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.student.*;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.RegExUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ca.bc.gov.educ.api.pen.myed.util.JsonUtil.getJsonStringFromObject;
 
@@ -87,20 +82,36 @@ public class PenMyEdService {
   }
 
   public Mono<ResponseEntity<List<MyEdStudent>>> findStudents(final List<String> penList) {
-    SearchCriteria criteria = SearchCriteria.builder().key("pen").operation(FilterOperation.IN).value(String.join(",", penList)).valueType(ValueType.STRING).build();
-    List<SearchCriteria> criteriaList = new ArrayList<>();
-    criteriaList.add(criteria);
-    List<Search> searches = new LinkedList<>();
-    searches.add(Search.builder().searchCriteriaList(criteriaList).build());
-    return this.restUtils.findStudentsByCriteria(getJsonStringFromObject(searches), penList.size()).map(restPageResponseEntity -> {
-      if (restPageResponseEntity.getStatusCode() == HttpStatus.OK) {
-        val body = restPageResponseEntity.getBody();
-        if (body != null && body.getContent() != null) {
-          return ResponseEntity.status(restPageResponseEntity.getStatusCode()).body(body.getContent().stream().map(MyEdStudentMapper.mapper::toMyEdStudent).collect(Collectors.toList()));
-        }
-        return ResponseEntity.status(restPageResponseEntity.getStatusCode()).build();
+    try {
+      val batches = getBatches(penList,1000);
+
+      List<Student> students = new ArrayList<>();
+
+      List<Mono<ResponseEntity<RestPageImpl<Student>>>> monos = new ArrayList<>();
+
+      for(val batch : batches) {
+        SearchCriteria criteria = SearchCriteria.builder().key("pen").operation(FilterOperation.IN).value(String.join(",", batch)).valueType(ValueType.STRING).build();
+        List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+        List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+        //students.addAll(this.restUtils.findStudentsByCriteria(getJsonStringFromObject(searches), batch.size()).block().getBody().getContent());
+        monos.add(this.restUtils.findStudentsByCriteria(getJsonStringFromObject(searches), batch.size()));
       }
-      return ResponseEntity.status(restPageResponseEntity.getStatusCode()).build();
-    });
+
+      Mono.zip(monos, objectArray ->
+        Arrays.stream(objectArray)
+          .map(object -> yourMapperFunction(object))
+          .collect(Collectors.toList()) ).block();
+      return Mono.just(ResponseEntity.ok(students.stream().map(MyEdStudentMapper.mapper::toMyEdStudent).collect(Collectors.toList())));
+    } catch (Exception e) {
+      throw new MyEdAPIRuntimeException("Error while fetching students: " + e.getMessage());
+    }
+  }
+
+  public static <T> List<List<T>> getBatches(List<T> collection, int batchSize) {
+    return IntStream.iterate(0, i -> i < collection.size(), i -> i + batchSize)
+      .mapToObj(i -> collection.subList(i, Math.min(i + batchSize, collection.size())))
+      .collect(Collectors.toList());
   }
 }
