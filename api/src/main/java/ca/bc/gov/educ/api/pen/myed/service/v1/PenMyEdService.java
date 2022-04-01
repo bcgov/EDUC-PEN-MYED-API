@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.api.pen.myed.service.v1;
 
-import ca.bc.gov.educ.api.pen.myed.exception.MyEdAPIRuntimeException;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.MyEdStudentMapper;
 import ca.bc.gov.educ.api.pen.myed.rest.RestUtils;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdStudent;
@@ -18,7 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -82,31 +84,19 @@ public class PenMyEdService {
   }
 
   public Mono<ResponseEntity<List<MyEdStudent>>> findStudents(final List<String> penList) {
-    try {
-      val batches = getBatches(penList,1000);
+    val batches = getBatches(penList,1000);
 
-      List<Student> students = new ArrayList<>();
+    List<Student> students = new ArrayList<>();
 
-      List<Mono<ResponseEntity<RestPageImpl<Student>>>> monos = new ArrayList<>();
-
-      for(val batch : batches) {
-        SearchCriteria criteria = SearchCriteria.builder().key("pen").operation(FilterOperation.IN).value(String.join(",", batch)).valueType(ValueType.STRING).build();
-        List<SearchCriteria> criteriaList = new ArrayList<>();
-        criteriaList.add(criteria);
-        List<Search> searches = new LinkedList<>();
-        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
-        //students.addAll(this.restUtils.findStudentsByCriteria(getJsonStringFromObject(searches), batch.size()).block().getBody().getContent());
-        monos.add(this.restUtils.findStudentsByCriteria(getJsonStringFromObject(searches), batch.size()));
-      }
-
-      Mono.zip(monos, objectArray ->
-        Arrays.stream(objectArray)
-          .map(object -> yourMapperFunction(object))
-          .collect(Collectors.toList()) ).block();
-      return Mono.just(ResponseEntity.ok(students.stream().map(MyEdStudentMapper.mapper::toMyEdStudent).collect(Collectors.toList())));
-    } catch (Exception e) {
-      throw new MyEdAPIRuntimeException("Error while fetching students: " + e.getMessage());
+    for(val batch : batches) {
+      SearchCriteria criteria = SearchCriteria.builder().key("pen").operation(FilterOperation.IN).value(String.join(",", batch)).valueType(ValueType.STRING).build();
+      List<SearchCriteria> criteriaList = new ArrayList<>();
+      criteriaList.add(criteria);
+      List<Search> searches = new LinkedList<>();
+      searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+      students.addAll(this.restUtils.findStudentsByCriteria(getJsonStringFromObject(searches), batch.size()).block().getBody().getContent());
     }
+    return Mono.just(ResponseEntity.ok(students.stream().map(MyEdStudentMapper.mapper::toMyEdStudent).collect(Collectors.toList())));
   }
 
   public static <T> List<List<T>> getBatches(List<T> collection, int batchSize) {
