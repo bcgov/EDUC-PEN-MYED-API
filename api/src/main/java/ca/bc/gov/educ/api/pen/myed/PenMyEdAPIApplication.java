@@ -59,4 +59,5 @@ public class PenMyEdAPIApplication {
           .oauth2ResourceServer().jwt();
     }
   }
+
 }

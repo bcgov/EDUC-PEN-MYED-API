@@ -136,8 +136,8 @@ public class PenMyEdPayloadValidator {
     if (penList.isEmpty()) {
       apiValidationErrors.add(new FieldError(PEN_LIST, "pen", "At Least one pen is required in the payload."));
     }
-    if (penList.size() > 500) {
-      apiValidationErrors.add(new FieldError(PEN_LIST, "pen", "Maximum 500 pen numbers allowed."));
+    if (penList.size() > 100000) {
+      apiValidationErrors.add(new FieldError(PEN_LIST, "pen", "Maximum 100000 pen numbers allowed."));
     }
     for (var index = 0; index < penList.size(); index++) {
       val pen = penList.get(index);
