@@ -246,7 +246,6 @@ public class RestUtils {
       });
   }
 
-  @Async
   public Mono<ResponseEntity<RestPageImpl<Student>>> findStudentsByCriteria(final String criteriaJSON, final Integer pageSize) {
     return this.webClient.get()
       .uri(this.getStudentPaginatedURI(criteriaJSON, pageSize))

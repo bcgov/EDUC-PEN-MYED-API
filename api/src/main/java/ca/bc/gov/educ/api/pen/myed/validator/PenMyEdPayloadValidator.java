@@ -54,10 +54,7 @@ public class PenMyEdPayloadValidator {
    */
   public List<FieldError> validateBatchSubmissionPayload(PenRequestBatchSubmission penRequestBatchSubmission) {
     final List<FieldError> apiValidationErrors = new ArrayList<>();
-    val school = validateSchoolInfo(penRequestBatchSubmission.getMincode(), apiValidationErrors);
-    if (school != null && !penRequestBatchSubmission.getSchoolName().equalsIgnoreCase(school.getSchoolName())) {
-      apiValidationErrors.add(createFieldError("schoolName", penRequestBatchSubmission.getSchoolName(), "School Name mismatch."));
-    }
+    validateSchoolInfo(penRequestBatchSubmission.getMincode(), apiValidationErrors);
     if (!StringUtils.isNumeric(penRequestBatchSubmission.getMincode())) {
       apiValidationErrors.add(createFieldError(MINCODE, penRequestBatchSubmission.getMincode(), "mincode should be numeric."));
     }
