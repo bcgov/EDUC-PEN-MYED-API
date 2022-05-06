@@ -20,8 +20,7 @@ env:
   # 🖊️ EDIT to specify custom tags for the container image, or default tags will be generated below.
   IMAGE_TAGS: ""
 
-  SPRING_BOOT_IMAGE_NAME: myed
-  +-api-master
+  SPRING_BOOT_IMAGE_NAME: pen-myed-api-master
   DOCKER_ARTIFACTORY_REPO: docker-remote.artifacts.developer.gov.bc.ca
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
 
