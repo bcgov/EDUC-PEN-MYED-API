@@ -17,11 +17,11 @@ env:
   IMAGE_REGISTRY_USER: ${{ github.actor }}
   IMAGE_REGISTRY_PASSWORD: ${{ github.token }}
 
-  SPRING_BOOT_IMAGE_NAME: pen-myed-api-master
+  SPRING_BOOT_IMAGE_NAME: pen-myed-api-main
 
   APP_NAME: 'pen-myed-api'
   REPO_NAME: "educ-pen-myed-api"
-  BRANCH: "master"
+  BRANCH: "main"
   NAMESPACE: ${{ secrets.CLIENT_NAMESPACE_NO_ENV }}
   COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
   TAG: "latest"

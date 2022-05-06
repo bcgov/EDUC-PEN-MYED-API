@@ -20,14 +20,14 @@ env:
   # 🖊️ EDIT to specify custom tags for the container image, or default tags will be generated below.
   IMAGE_TAGS: ""
 
-  SPRING_BOOT_IMAGE_NAME: pen-myed-api-master
+  SPRING_BOOT_IMAGE_NAME: pen-myed-api-main
   DOCKER_ARTIFACTORY_REPO: docker-remote.artifacts.developer.gov.bc.ca
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
 
   APP_NAME: 'pen-myed-api'
   REPO_NAME: "educ-pen-myed-api"
-  BRANCH: "master"
-  APP_NAME_FULL: "pen-myed-api-master"
+  BRANCH: "main"
+  APP_NAME_FULL: "pen-myed-api-main"
   NAMESPACE: ${{ secrets.CLIENT_NAMESPACE_NO_ENV }}
   COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
   TAG: "latest"
@@ -159,7 +159,7 @@ jobs:
           oc process -f tools/openshift/api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
           | oc apply -f -
           
-          curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/master/tools/config/update-configmap.sh | bash /dev/stdin ${{ env.TARGET_ENV }} ${{ env.APP_NAME }} ${{ env.PEN_NAMESPACE }} ${{ env.COMMON_NAMESPACE }} ${{ env.NAMESPACE }} ${{ env.SPLUNK_TOKEN }}
+          curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/main/tools/config/update-configmap.sh | bash /dev/stdin ${{ env.TARGET_ENV }} ${{ env.APP_NAME }} ${{ env.PEN_NAMESPACE }} ${{ env.COMMON_NAMESPACE }} ${{ env.NAMESPACE }} ${{ env.SPLUNK_TOKEN }}
           
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \

@@ -12,7 +12,7 @@ env:
   IMAGE_TAGS: ""
 
   REPO_NAME: "educ-pen-myed-api"
-  BRANCH: "master"
+  BRANCH: "main"
   NAMESPACE: ${{ secrets.CLIENT_NAMESPACE_NO_ENV }}
 
 on:
