@@ -64,10 +64,10 @@ public interface PenRegBatchMapper {
    * @param penRequestBatchSubmissionStudent the pen request batch submission student
    * @return the pen request batch student
    */
-  @Mapping(target = "usualMiddleName", source = "usualMiddleName")
+  @Mapping(target = "usualMiddleNames", source = "usualMiddleName")
   @Mapping(target = "usualLastName", source = "usualSurname")
   @Mapping(target = "usualFirstName", source = "usualGivenName")
-  @Mapping(target = "legalMiddleName", source = "legalMiddleName")
+  @Mapping(target = "legalMiddleNames", source = "legalMiddleName")
   @Mapping(target = "legalLastName", source = "legalSurname")
   @Mapping(target = "legalFirstName", source = "legalGivenName")
   @Mapping(target = "submittedPen", source = "pen")

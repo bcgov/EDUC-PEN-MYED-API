@@ -43,7 +43,7 @@ public class PenRequestBatchStudent {
   /**
    * The Legal middle names.
    */
-  String legalMiddleName;
+  String legalMiddleNames;
   /**
    * The Legal last name.
    */
@@ -55,7 +55,7 @@ public class PenRequestBatchStudent {
   /**
    * The Usual middle names.
    */
-  String usualMiddleName;
+  String usualMiddleNames;
   /**
    * The Usual last name.
    */
