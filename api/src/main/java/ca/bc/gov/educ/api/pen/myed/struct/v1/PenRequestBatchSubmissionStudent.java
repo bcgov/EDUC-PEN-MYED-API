@@ -77,7 +77,5 @@ public class PenRequestBatchSubmissionStudent {
    * The Postal code.
    */
   @Size(max = 6, min = 6)
-  @Pattern(regexp = "^([A-Z]\\d[A-Z]\\d[A-Z]\\d|)$")
-  @NotBlank
   String postalCode;
 }
