@@ -133,7 +133,7 @@ public class RestUtils {
    */
   private void populateSchoolMap() {
     for (val school : this.getSchools()) {
-      this.schoolMap.putIfAbsent(school.getDistNo() + school.getSchlNo(), school);
+      this.schoolMap.put(school.getDistNo() + school.getSchlNo(), school);
     }
     log.info("loaded  {} schools to memory", this.schoolMap.values().size());
   }
