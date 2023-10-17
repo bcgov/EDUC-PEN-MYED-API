@@ -1,4 +1,4 @@
-FROM artifacts.developer.gov.bc.ca/docker-remote/maven:3-jdk-11 as build
+FROM artifacts.developer.gov.bc.ca/docker-remote/maven:3.8.7-openjdk-18 AS build
 WORKDIR /workspace/app
 
 COPY api/pom.xml .
@@ -10,7 +10,7 @@ FROM build AS vulnscan
 COPY --from=artifacts.developer.gov.bc.ca/docker-remote/aquasec/trivy:latest /usr/local/bin/trivy /usr/local/bin/trivy
 RUN trivy filesystem --severity CRITICAL --exit-code 0 --no-progress /
 
-FROM artifacts.developer.gov.bc.ca/docker-remote/openjdk:11-jdk as pen-myed
+FROM artifacts.developer.gov.bc.ca/docker-remote/openjdk:18.0.2.1-jdk-oracle AS pen-myed
 RUN useradd -ms /bin/bash spring
 RUN mkdir -p /logs
 RUN chown -R spring:spring /logs

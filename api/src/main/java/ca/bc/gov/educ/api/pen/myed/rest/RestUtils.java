@@ -9,15 +9,19 @@ import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdSubmissionResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.district.District;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.district.DistrictContact;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.School;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.school.SchoolContact;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.school.StudentRegistrationContact;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.student.RestPageImpl;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.student.Student;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.threads.EnhancedQueueExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +29,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -36,6 +39,7 @@ import reactor.core.publisher.Mono;
 import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,15 +68,15 @@ public class RestUtils {
    * The School lock.
    */
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
-  /**
-   * The School map.
-   */
-  @Getter
-  private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
 
-  /**
-   * The Props.
-   */
+  @Getter
+  private final Map<String, School> schoolMincodeMap = new ConcurrentHashMap<>();
+
+  @Getter
+  private final Map<String, School> schoolIDMap = new ConcurrentHashMap<>();
+
+  @Getter
+  private final Map<String, District> districtIDMap = new ConcurrentHashMap<>();
 
   private final ApplicationProperties props;
   /**
@@ -105,12 +109,12 @@ public class RestUtils {
   public void init() {
     if (this.isBackgroundInitializationEnabled != null && this.isBackgroundInitializationEnabled) {
       this.bgTask.execute(() -> {
-        this.populateSchoolMap();
-        this.getPenCoordinators().block();
+        this.populateSchoolMaps();
+        this.populateDistrictMap();
       });
     } else {
-      this.populateSchoolMap();
-      this.getPenCoordinators().block();
+      this.populateSchoolMaps();
+      this.populateDistrictMap();
     }
   }
 
@@ -128,14 +132,19 @@ public class RestUtils {
     }
   }
 
-  /**
-   * Populate school map.
-   */
-  private void populateSchoolMap() {
+  private void populateSchoolMaps() {
     for (val school : this.getSchools()) {
-      this.schoolMap.put(school.getDistNo() + school.getSchlNo(), school);
+      this.schoolMincodeMap.put(school.getMincode(), school);
+      this.schoolIDMap.put(school.getSchoolId(), school);
     }
-    log.info("loaded  {} schools to memory", this.schoolMap.values().size());
+    log.info("Loaded  {} schools to memory", this.schoolIDMap.values().size());
+  }
+
+  private void populateDistrictMap() {
+    for (val district : this.getDistricts()) {
+      this.districtIDMap.put(district.getDistrictId(), district);
+    }
+    log.info("Loaded  {} districts to memory", this.districtIDMap.values().size());
   }
 
   /**
@@ -160,20 +169,26 @@ public class RestUtils {
       });
   }
 
-  /**
-   * Gets schools.
-   *
-   * @return the schools
-   */
-  public List<School> getSchools() {
-    log.info("calling school api to load schools to memory");
+  public List<District> getDistricts() {
+    log.info("Calling Institute api to get list of districts");
     return this.webClient.get()
-      .uri(this.props.getSchoolApiUrl())
-      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .retrieve()
-      .bodyToFlux(School.class)
-      .collectList()
-      .block();
+            .uri(this.props.getInstituteApiUrl() + "/district")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(District.class)
+            .collectList()
+            .block();
+  }
+
+  public List<School> getSchools() {
+    log.info("Calling Institute api to get list of schools");
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiUrl() + "/school")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(School.class)
+            .collectList()
+            .block();
   }
 
   /**
@@ -229,21 +244,51 @@ public class RestUtils {
       });
   }
 
-  public Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators() {
-    log.info("making api call to get pen coordinators data ");
-    return this.webClient.get()
-      .uri(this.props.getSchoolApiUrl() + "/pen-coordinator")
-      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .exchangeToMono(response -> {
-        if (response.statusCode().equals(HttpStatus.OK)) {
-          log.info("API call to get Pen coordinators success :: {}", response.rawStatusCode());
-          return response.toEntity(new ParameterizedTypeReference<List<PenCoordinator>>() {
-          });
-        } else {
-          log.error("API call to get Pen coordinators failed :: {}", response.rawStatusCode());
-          return Mono.just(ResponseEntity.status(response.statusCode()).build());
-        }
-      });
+  public List<StudentRegistrationContact> getStudentRegistrationContactList() {
+    log.info("Calling Institute api to get list of school and district student registration contacts");
+    List<SchoolContact> schoolContacts = this.webClient.get()
+            .uri(this.props.getInstituteApiUrl() + "/school")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(SchoolContact.class)
+            .collectList()
+            .block();
+
+    List<DistrictContact> districtContacts = this.webClient.get()
+            .uri(this.props.getInstituteApiUrl()
+                    + "/district/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{\"condition\":null,\"searchCriteriaList\":[{\"key\":\"districtContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]}]")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(DistrictContact.class)
+            .collectList()
+            .block();
+
+    var schools = getSchoolIDMap();
+    var districts = getDistrictIDMap();
+
+    List<StudentRegistrationContact> studentRegistrationContacts = new ArrayList<>();
+    schoolContacts.forEach(schoolContact -> {
+      var school = schools.get(schoolContact.getSchoolId());
+      StudentRegistrationContact coordinator = new StudentRegistrationContact();
+      coordinator.setMincode(school.getMincode());
+      coordinator.setDistrictNumber(school.getMincode().substring(0,3));
+      coordinator.setSchoolNumber(school.getMincode().substring(4));
+      coordinator.setPenCoordinatorName(StringUtils.trim(schoolContact.getFirstName() + " " + schoolContact.getLastName()));
+      coordinator.setPenCoordinatorEmail(schoolContact.getEmail());
+      studentRegistrationContacts.add(coordinator);
+    });
+
+    districtContacts.forEach(districtContact -> {
+      var district = districts.get(districtContact.getDistrictId());
+      StudentRegistrationContact coordinator = new StudentRegistrationContact();
+      coordinator.setMincode(district.getDistrictNumber() + "00000");
+      coordinator.setDistrictNumber(district.getDistrictNumber());
+      coordinator.setSchoolNumber("00000");
+      coordinator.setPenCoordinatorName(StringUtils.trim(districtContact.getFirstName() + " " + districtContact.getLastName()));
+      coordinator.setPenCoordinatorEmail(districtContact.getEmail());
+      studentRegistrationContacts.add(coordinator);
+    });
+    return studentRegistrationContacts;
   }
 
   public Mono<ResponseEntity<RestPageImpl<Student>>> findStudentsByCriteria(final String criteriaJSON, final Integer pageSize) {

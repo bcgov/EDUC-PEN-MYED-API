@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.api.pen.myed.service.v1;
 
-import ca.bc.gov.educ.api.pen.myed.exception.MyEdAPIRuntimeException;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.MyEdStudentMapper;
 import ca.bc.gov.educ.api.pen.myed.rest.RestUtils;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdStudent;
@@ -8,9 +7,8 @@ import ca.bc.gov.educ.api.pen.myed.struct.v1.MyEdSubmissionResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.school.StudentRegistrationContact;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.student.*;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.RegExUtils;
@@ -81,8 +79,8 @@ public class PenMyEdService {
     });
   }
 
-  public Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators() {
-    return this.restUtils.getPenCoordinators();
+  public List<StudentRegistrationContact> getStudentRegistrationContacts() {
+    return this.restUtils.getStudentRegistrationContactList();
   }
 
   public Mono<ResponseEntity<List<MyEdStudent>>> findStudents(final List<String> penList) {
@@ -98,12 +96,12 @@ public class PenMyEdService {
       searches.add(Search.builder().searchCriteriaList(criteriaList).build());
       students.addAll(this.restUtils.findStudentsByCriteria(getJsonStringFromObject(searches), batch.size()).block().getBody().getContent());
     }
-    return Mono.just(ResponseEntity.ok(students.stream().map(MyEdStudentMapper.mapper::toMyEdStudent).collect(Collectors.toList())));
+    return Mono.just(ResponseEntity.ok(students.stream().map(MyEdStudentMapper.mapper::toMyEdStudent).toList()));
   }
 
   public static <T> List<List<T>> getBatches(List<T> collection, int batchSize) {
     return IntStream.iterate(0, i -> i < collection.size(), i -> i + batchSize)
       .mapToObj(i -> collection.subList(i, Math.min(i + batchSize, collection.size())))
-      .collect(Collectors.toList());
+      .toList();
   }
 }
