@@ -245,51 +245,56 @@ public class RestUtils {
   }
 
   public List<StudentRegistrationContact> getStudentRegistrationContactList() {
-    log.info("Calling Institute api to get list of school and district student registration contacts");
-    List<SchoolContact> schoolContacts = this.webClient.get()
-            .uri(this.props.getInstituteApiUrl()
-                    + "/school/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{\"condition\":null,\"searchCriteriaList\":[{\"key\":\"schoolContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]}]")
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .retrieve()
-            .bodyToFlux(SchoolContact.class)
-            .collectList()
-            .block();
+    try {
+      log.info("Calling Institute api to get list of school and district student registration contacts");
+      List<SchoolContact> schoolContacts = this.webClient.get()
+              .uri(this.props.getInstituteApiUrl()
+                      + "/school/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{\"condition\":null,\"searchCriteriaList\":[{\"key\":\"schoolContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]}]")
+              .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+              .retrieve()
+              .bodyToFlux(SchoolContact.class)
+              .collectList()
+              .block();
 
-    List<DistrictContact> districtContacts = this.webClient.get()
-            .uri(this.props.getInstituteApiUrl()
-                    + "/district/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{\"condition\":null,\"searchCriteriaList\":[{\"key\":\"districtContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]}]")
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .retrieve()
-            .bodyToFlux(DistrictContact.class)
-            .collectList()
-            .block();
+      List<DistrictContact> districtContacts = this.webClient.get()
+              .uri(this.props.getInstituteApiUrl()
+                      + "/district/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{\"condition\":null,\"searchCriteriaList\":[{\"key\":\"districtContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]}]")
+              .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+              .retrieve()
+              .bodyToFlux(DistrictContact.class)
+              .collectList()
+              .block();
 
-    var schools = getSchoolIDMap();
-    var districts = getDistrictIDMap();
+      var schools = getSchoolIDMap();
+      var districts = getDistrictIDMap();
 
-    List<StudentRegistrationContact> studentRegistrationContacts = new ArrayList<>();
-    schoolContacts.forEach(schoolContact -> {
-      var school = schools.get(schoolContact.getSchoolId());
-      StudentRegistrationContact coordinator = new StudentRegistrationContact();
-      coordinator.setMincode(school.getMincode());
-      coordinator.setDistrictNumber(school.getMincode().substring(0,3));
-      coordinator.setSchoolNumber(school.getMincode().substring(4));
-      coordinator.setPenCoordinatorName(StringUtils.trim(schoolContact.getFirstName() + " " + schoolContact.getLastName()));
-      coordinator.setPenCoordinatorEmail(schoolContact.getEmail());
-      studentRegistrationContacts.add(coordinator);
-    });
+      List<StudentRegistrationContact> studentRegistrationContacts = new ArrayList<>();
+      schoolContacts.forEach(schoolContact -> {
+        var school = schools.get(schoolContact.getSchoolId());
+        StudentRegistrationContact coordinator = new StudentRegistrationContact();
+        coordinator.setMincode(school.getMincode());
+        coordinator.setDistrictNumber(school.getMincode().substring(0, 3));
+        coordinator.setSchoolNumber(school.getMincode().substring(4));
+        coordinator.setPenCoordinatorName(StringUtils.trim(schoolContact.getFirstName() + " " + schoolContact.getLastName()));
+        coordinator.setPenCoordinatorEmail(schoolContact.getEmail());
+        studentRegistrationContacts.add(coordinator);
+      });
 
-    districtContacts.forEach(districtContact -> {
-      var district = districts.get(districtContact.getDistrictId());
-      StudentRegistrationContact coordinator = new StudentRegistrationContact();
-      coordinator.setMincode(district.getDistrictNumber() + "00000");
-      coordinator.setDistrictNumber(district.getDistrictNumber());
-      coordinator.setSchoolNumber("00000");
-      coordinator.setPenCoordinatorName(StringUtils.trim(districtContact.getFirstName() + " " + districtContact.getLastName()));
-      coordinator.setPenCoordinatorEmail(districtContact.getEmail());
-      studentRegistrationContacts.add(coordinator);
-    });
-    return studentRegistrationContacts;
+      districtContacts.forEach(districtContact -> {
+        var district = districts.get(districtContact.getDistrictId());
+        StudentRegistrationContact coordinator = new StudentRegistrationContact();
+        coordinator.setMincode(district.getDistrictNumber() + "00000");
+        coordinator.setDistrictNumber(district.getDistrictNumber());
+        coordinator.setSchoolNumber("00000");
+        coordinator.setPenCoordinatorName(StringUtils.trim(districtContact.getFirstName() + " " + districtContact.getLastName()));
+        coordinator.setPenCoordinatorEmail(districtContact.getEmail());
+        studentRegistrationContacts.add(coordinator);
+      });
+      return studentRegistrationContacts;
+    }catch(Exception e){
+      log.error("API call to Institute API failure getting student registration contacts :: {}", e.getMessage());
+      throw new MyEdAPIRuntimeException("API call to Institute API failure getting student registration contacts, contact the Ministry for more info.");
+    }
   }
 
   public Mono<ResponseEntity<RestPageImpl<Student>>> findStudentsByCriteria(final String criteriaJSON, final Integer pageSize) {
