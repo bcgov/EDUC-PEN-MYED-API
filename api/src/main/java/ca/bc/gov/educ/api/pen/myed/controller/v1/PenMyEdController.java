@@ -8,7 +8,7 @@ import ca.bc.gov.educ.api.pen.myed.exception.errors.ApiError;
 import ca.bc.gov.educ.api.pen.myed.mappers.v1.PenRegBatchMapper;
 import ca.bc.gov.educ.api.pen.myed.service.v1.PenMyEdService;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.*;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.school.StudentRegistrationContact;
 import ca.bc.gov.educ.api.pen.myed.validator.PenMyEdPayloadValidator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -81,8 +81,8 @@ public class PenMyEdController implements PenMyEdApiEndpoint {
   }
 
   @Override
-  public Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators() {
-    return this.penMyEdService.getPenCoordinators();
+  public List<StudentRegistrationContact> getStudentRegistrationContacts() {
+    return this.penMyEdService.getStudentRegistrationContacts();
   }
 
   @Override
