@@ -249,7 +249,7 @@ public class RestUtils {
       log.info("Calling Institute api to get list of school and district student registration contacts");
       List<SchoolContact> schoolContacts = this.webClient.get()
               .uri(this.props.getInstituteApiUrl()
-                      + "/school/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{\"key\":\"schoolContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]")
+                      + "/api/v1/institute/school/contact/paginated?pageNumber=0&pageSize=10000")
               .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
               .retrieve()
               .bodyToFlux(SchoolContact.class)
@@ -258,7 +258,7 @@ public class RestUtils {
 
       List<DistrictContact> districtContacts = this.webClient.get()
               .uri(this.props.getInstituteApiUrl()
-                      + "/district/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{\"key\":\"districtContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]")
+                      + "/api/v1/institute/district/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{'condition':null,'searchCriteriaList':[{'key':'districtContactTypeCode','operation':'eq','value':'STUDREGIS','valueType':'STRING','condition':'AND'}]}]")
               .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
               .retrieve()
               .bodyToFlux(DistrictContact.class)
