@@ -10,10 +10,10 @@ import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestBatchSubmissionResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.PenRequestResult;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.Request;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.district.District;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.district.DistrictContact;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.district.DistrictContactSearchWrapper;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.penregbatch.PenRequestBatch;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.School;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.school.SchoolContact;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.school.SchoolContactSearchWrapper;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.school.StudentRegistrationContact;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.student.RestPageImpl;
 import ca.bc.gov.educ.api.pen.myed.struct.v1.student.Student;
@@ -172,7 +172,7 @@ public class RestUtils {
   public List<District> getDistricts() {
     log.info("Calling Institute api to get list of districts");
     return this.webClient.get()
-            .uri(this.props.getInstituteApiUrl() + "/district")
+            .uri(this.props.getInstituteApiUrl() + "/api/v1/institute/district")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(District.class)
@@ -183,7 +183,7 @@ public class RestUtils {
   public List<School> getSchools() {
     log.info("Calling Institute api to get list of schools");
     return this.webClient.get()
-            .uri(this.props.getInstituteApiUrl() + "/school")
+            .uri(this.props.getInstituteApiUrl() + "/api/v1/institute/school")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(School.class)
@@ -244,32 +244,44 @@ public class RestUtils {
       });
   }
 
+  private URI getSchoolContactURI(String criterion){
+    return UriComponentsBuilder.fromHttpUrl(this.props.getInstituteApiUrl() + "/api/v1/institute/school/contact/paginated")
+            .queryParam("pageNumber", "0")
+            .queryParam("pageSize", "10000")
+            .queryParam("searchCriteriaList", criterion).build().toUri();
+  }
+
+  private URI getDistrictContactURI(String criterion){
+    return UriComponentsBuilder.fromHttpUrl(this.props.getInstituteApiUrl() + "/api/v1/institute/district/contact/paginated")
+            .queryParam("pageNumber", "0")
+            .queryParam("pageSize", "10000")
+            .queryParam("searchCriteriaList", criterion).build().toUri();
+  }
+
   public List<StudentRegistrationContact> getStudentRegistrationContactList() {
     try {
       log.info("Calling Institute api to get list of school and district student registration contacts");
-      List<SchoolContact> schoolContacts = this.webClient.get()
-              .uri(this.props.getInstituteApiUrl()
-                      + "/api/v1/institute/school/contact/paginated?pageNumber=0&pageSize=10000")
+      String criterion = "[{\"searchCriteriaList\":[{\"key\":\"schoolContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]}]";
+      SchoolContactSearchWrapper schoolContactSearchWrapper = this.webClient.get()
+              .uri(getSchoolContactURI(criterion))
               .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
               .retrieve()
-              .bodyToFlux(SchoolContact.class)
-              .collectList()
-              .block();
+              .bodyToFlux(SchoolContactSearchWrapper.class)
+              .blockFirst();
 
-      List<DistrictContact> districtContacts = this.webClient.get()
-              .uri(this.props.getInstituteApiUrl()
-                      + "/api/v1/institute/district/contact/paginated?pageNumber=0&pageSize=10000&searchCriteriaList=[{'condition':null,'searchCriteriaList':[{'key':'districtContactTypeCode','operation':'eq','value':'STUDREGIS','valueType':'STRING','condition':'AND'}]}]")
+      criterion = "[{\"searchCriteriaList\":[{\"key\":\"districtContactTypeCode\",\"operation\":\"eq\",\"value\":\"STUDREGIS\",\"valueType\":\"STRING\",\"condition\":\"AND\"}]}]";
+      DistrictContactSearchWrapper districtContactSearchWrapper = this.webClient.get()
+              .uri(getDistrictContactURI(criterion))
               .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
               .retrieve()
-              .bodyToFlux(DistrictContact.class)
-              .collectList()
-              .block();
+              .bodyToFlux(DistrictContactSearchWrapper.class)
+              .blockFirst();
 
       var schools = getSchoolIDMap();
       var districts = getDistrictIDMap();
 
       List<StudentRegistrationContact> studentRegistrationContacts = new ArrayList<>();
-      schoolContacts.forEach(schoolContact -> {
+      schoolContactSearchWrapper.getContent().forEach(schoolContact -> {
         var school = schools.get(schoolContact.getSchoolId());
         StudentRegistrationContact coordinator = new StudentRegistrationContact();
         coordinator.setMincode(school.getMincode());
@@ -280,7 +292,7 @@ public class RestUtils {
         studentRegistrationContacts.add(coordinator);
       });
 
-      districtContacts.forEach(districtContact -> {
+      districtContactSearchWrapper.getContent().forEach(districtContact -> {
         var district = districts.get(districtContact.getDistrictId());
         StudentRegistrationContact coordinator = new StudentRegistrationContact();
         coordinator.setMincode(district.getDistrictNumber() + "00000");
