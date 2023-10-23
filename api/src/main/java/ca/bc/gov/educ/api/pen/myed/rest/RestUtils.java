@@ -172,7 +172,7 @@ public class RestUtils {
   public List<District> getDistricts() {
     log.info("Calling Institute api to get list of districts");
     return this.webClient.get()
-            .uri(this.props.getInstituteApiUrl() + "/api/v1/institute/district")
+            .uri(this.props.getInstituteApiUrl() + "/district")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(District.class)
@@ -183,7 +183,7 @@ public class RestUtils {
   public List<School> getSchools() {
     log.info("Calling Institute api to get list of schools");
     return this.webClient.get()
-            .uri(this.props.getInstituteApiUrl() + "/api/v1/institute/school")
+            .uri(this.props.getInstituteApiUrl() + "/school")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(School.class)
@@ -245,14 +245,14 @@ public class RestUtils {
   }
 
   private URI getSchoolContactURI(String criterion){
-    return UriComponentsBuilder.fromHttpUrl(this.props.getInstituteApiUrl() + "/api/v1/institute/school/contact/paginated")
+    return UriComponentsBuilder.fromHttpUrl(this.props.getInstituteApiUrl() + "/school/contact/paginated")
             .queryParam("pageNumber", "0")
             .queryParam("pageSize", "10000")
             .queryParam("searchCriteriaList", criterion).build().toUri();
   }
 
   private URI getDistrictContactURI(String criterion){
-    return UriComponentsBuilder.fromHttpUrl(this.props.getInstituteApiUrl() + "/api/v1/institute/district/contact/paginated")
+    return UriComponentsBuilder.fromHttpUrl(this.props.getInstituteApiUrl() + "/district/contact/paginated")
             .queryParam("pageNumber", "0")
             .queryParam("pageSize", "10000")
             .queryParam("searchCriteriaList", criterion).build().toUri();
