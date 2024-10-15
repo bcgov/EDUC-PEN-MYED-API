@@ -55,4 +55,5 @@ build/
 .vscode/
 
 ### Local dev ###
-**/application-local.yaml
+api/src/main/resources/*-local*
+api/src/main/resources/*.http
