@@ -27,7 +27,7 @@ env:
   TAG: "latest"
   TARGET_ENV: "test"
   MIN_REPLICAS: "3"
-  MAX_REPLICAS: "3"
+  MAX_REPLICAS: "5"
   MIN_CPU: "75m"
   MAX_CPU: "150m"
   MIN_MEM: "400Mi"
@@ -41,7 +41,7 @@ jobs:
   openshift-ci-cd:
     name: Deploy to OpenShift TEST
     # ubuntu-20.04 can also be used.
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     environment: test
 
     outputs:
@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Check for required secrets
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const secrets = {
@@ -88,7 +88,7 @@ jobs:
             }
 
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Get latest tag
         uses: actions-ecosystem/action-get-latest-tag@v1
@@ -100,7 +100,7 @@ jobs:
           oc: 4
 
         # https://github.com/redhat-actions/oc-login#readme
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Deploy
         run: |
           set -eux

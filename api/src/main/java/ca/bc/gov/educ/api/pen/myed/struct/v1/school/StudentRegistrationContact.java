@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PenCoordinator {
+public class StudentRegistrationContact {
   /**
    * The District number.
    */

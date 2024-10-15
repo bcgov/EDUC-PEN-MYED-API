@@ -99,12 +99,12 @@ public class PenMyEdPayloadValidator {
    * @return the school
    */
   private School validateSchoolInfo(String mincode, List<FieldError> apiValidationErrors) {
-    val school = this.restUtils.getSchoolMap().get(mincode);
+    val school = this.restUtils.getSchoolMincodeMap().get(mincode);
     if (school == null) {
       apiValidationErrors.add(createFieldError(MINCODE, mincode, "Invalid mincode."));
     } else {
-      final String openedDate = school.getDateOpened();
-      final String closedDate = school.getDateClosed();
+      final String openedDate = school.getOpenedDate();
+      final String closedDate = school.getClosedDate();
       try {
         if (openedDate == null || LocalDate.parse(openedDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME).isAfter(LocalDate.now()) || (closedDate != null && LocalDate.parse(closedDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDate.now()))) {
           apiValidationErrors.add(createFieldError(MINCODE, mincode, "School is closed."));

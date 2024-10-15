@@ -27,7 +27,7 @@ jobs:
   openshift-ci-cd:
     name: Tag Image
     # ubuntu-20.04 can also be used.
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     environment: dev
 
     outputs:
@@ -36,10 +36,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Create tag
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           script: |
             github.rest.git.createRef({
@@ -55,7 +55,7 @@ jobs:
           oc: 4
 
         # https://github.com/redhat-actions/oc-login#readme
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Tag in OpenShift
         run: |
           set -eux

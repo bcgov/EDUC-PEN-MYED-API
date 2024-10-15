@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.api.pen.myed.endpoint.v1;
 
 import ca.bc.gov.educ.api.pen.myed.struct.v1.*;
-import ca.bc.gov.educ.api.pen.myed.struct.v1.school.PenCoordinator;
+import ca.bc.gov.educ.api.pen.myed.struct.v1.school.StudentRegistrationContact;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -65,10 +65,10 @@ public interface PenMyEdApiEndpoint {
    */
   @GetMapping("/pen-coordinators")
   @PreAuthorize("hasAuthority('SCOPE_MYED_READ_PEN_COORDINATOR')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(name = "PenCoordinator", implementation = PenCoordinator.class)))),
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(name = "StudentRegistrationContact", implementation = StudentRegistrationContact.class)))),
     @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  @Tag(name = "Endpoint to get all Pen Coordinators.", description = "Endpoint to get all Pen Coordinators.")
-  Mono<ResponseEntity<List<PenCoordinator>>> getPenCoordinators();
+  @Tag(name = "Endpoint to get all student registration contacts.", description = "Endpoint to get all student registration contacts.")
+  List<StudentRegistrationContact> getStudentRegistrationContacts();
 
 
   /**
