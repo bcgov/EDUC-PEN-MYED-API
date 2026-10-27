@@ -179,12 +179,12 @@
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
-          <version>3.6.0.1398</version>
+          <version>5.8.0.7211</version>
         </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.4</version>
+          <version>0.8.12</version>
         </plugin>
         <plugin>
           <groupId>org.springframework.boot</groupId>
