@@ -6,7 +6,7 @@ COPY api/src src
 RUN mvn clean package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM artifacts.developer.gov.bc.ca/docker-remote/amazoncorretto:17.0.20-alpine3.23 AS pen-myed
+FROM artifacts.developer.gov.bc.ca/docker-remote/amazoncorretto:17.0.21-alpine3.23 AS pen-myed
 RUN addgroup -S spring && adduser -S -D -G spring -h /home/spring -s /bin/sh spring
 RUN mkdir -p /logs
 RUN chown -R spring:spring /logs
