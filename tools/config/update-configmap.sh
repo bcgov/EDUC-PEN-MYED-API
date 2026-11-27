@@ -113,6 +113,8 @@ FLB_CONFIG="[SERVICE]
    Path   /mnt/log/*
    Exclude_Path *.gz,*.zip
    Mem_Buf_Limit 20MB
+   Buffer_Max_Size 1MB
+   Skip_Long_Lines On
 [FILTER]
    Name record_modifier
    Match *
